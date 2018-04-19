@@ -212,24 +212,6 @@
     <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\xpcom.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-SQLite\4x32\msvcr100.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-SQLite\4x32\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-SQLite\4x32\System.Data.SQLite.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-SQLite\4x64\msvcr100.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-SQLite\4x64\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-SQLite\4x64\System.Data.SQLite.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
