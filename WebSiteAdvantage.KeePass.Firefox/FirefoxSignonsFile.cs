@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using WebSiteAdvantage.KeePass.Firefox.Gecko;
 using System.Diagnostics;
@@ -30,34 +29,34 @@ using Newtonsoft.Json;
 
 namespace WebSiteAdvantage.KeePass.Firefox
 {
-	/// <summary>
-	/// represents the content of a firefox signon file
-	/// </summary>
-	public class FirefoxSignonsFile
-	{
-		#region Construction and Loading
-		/// <summary>
-		/// Quick way to load a new file
-		/// </summary>
-		/// <param name="profile">Profile with the signon file</param>
-		public static FirefoxSignonsFile Create(FirefoxProfile profile, string password)
-		{
-			FirefoxSignonsFile file = new FirefoxSignonsFile();
-			file.Load(profile, password);
+    /// <summary>
+    /// represents the content of a firefox signon file
+    /// </summary>
+    public class FirefoxSignonsFile
+    {
+        #region Construction and Loading
+        /// <summary>
+        /// Quick way to load a new file
+        /// </summary>
+        /// <param name="profile">Profile with the signon file</param>
+        public static FirefoxSignonsFile Create(FirefoxProfile profile, string password)
+        {
+            FirefoxSignonsFile file = new FirefoxSignonsFile();
+            file.Load(profile, password);
 
-			return file;
-		}
-		private Assembly _SQLite = null;
-		/// <summary>
-		/// load this object with signon data related to the supplied profile
-		/// </summary>
-		/// <param name="profile"></param>
-		public void Load(FirefoxProfile profile,string password)
-		{
-			Profile = profile;
+            return file;
+        }
+        private Assembly _SQLite = null;
+        /// <summary>
+        /// load this object with signon data related to the supplied profile
+        /// </summary>
+        /// <param name="profile"></param>
+        public void Load(FirefoxProfile profile,string password)
+        {
+            Profile = profile;
 
-			if (Profile.ProfilePath == null)
-				throw new Exception("Failed to determine the location of the default Firefox Profile");
+            if (Profile.ProfilePath == null)
+                throw new Exception("Failed to determine the location of the default Firefox Profile");
 
             SECStatus result1;
 
@@ -78,17 +77,17 @@ namespace WebSiteAdvantage.KeePass.Firefox
                 throw new Exception("Failed to initialise profile for load at " + Profile.ProfilePath + " reason " + errorName);
             }
 
-			try
-			{
+            try
+            {
 
-				IntPtr slot = NSS3.PK11_GetInternalKeySlot(); // get a slot to work with
+                IntPtr slot = NSS3.PK11_GetInternalKeySlot(); // get a slot to work with
 
-				if (slot == IntPtr.Zero)
-					throw new Exception("Failed to GetInternalKeySlot");
+                if (slot == IntPtr.Zero)
+                    throw new Exception("Failed to GetInternalKeySlot");
 
-				try
-				{
-					SECStatus result2 = NSS3.PK11_CheckUserPassword(slot, password);
+                try
+                {
+                    SECStatus result2 = NSS3.PK11_CheckUserPassword(slot, password);
 
                     if (result2 != SECStatus.Success)
                     {
@@ -97,8 +96,8 @@ namespace WebSiteAdvantage.KeePass.Firefox
                         throw new Exception("Failed to Validate Password: " + errorName);
                     }
 
-					string header = null;
-					string signonFile = null;
+                    string header = null;
+                    string signonFile = null;
 
                     string loginsJsonPath = Path.Combine(Profile.ProfilePath, "logins.json");
                     if (File.Exists(loginsJsonPath))
@@ -457,29 +456,29 @@ namespace WebSiteAdvantage.KeePass.Firefox
                             }
                         }
                     }
-				}
-				finally
-				{
-					NSS3.PK11_FreeSlot(slot);
-				}
-			}
-			finally
-			{
-				NSS3.NSS_Shutdown();
-			}
-		}
+                }
+                finally
+                {
+                    NSS3.PK11_FreeSlot(slot);
+                }
+            }
+            finally
+            {
+                NSS3.NSS_Shutdown();
+            }
+        }
 
         /// <summary>
         /// Converts a unix time, in miliseconds, to a <see cref="Nullable{DateTime}"/> in UTC.
         /// </summary>
         /// <param name="unixTimeMs">The unix timestamp, in miliseconds, to convert.</param>
         /// <returns>The converted time.</returns>
-	    private static DateTime? ConvertUnixTime(string unixTimeMs)
+        private static DateTime? ConvertUnixTime(string unixTimeMs)
         {
             return ulong.TryParse(unixTimeMs, out ulong parsedTime)
                 ? ConvertUnixTime(parsedTime)
                 : default(DateTime?);
-	    }
+        }
 
         /// <summary>
         /// Converts a unix time, in miliseconds, to a <see cref="Nullable{DateTime}"/> in UTC.
@@ -487,96 +486,96 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <param name="unixTimeMs">The unix timestamp, in miliseconds, to convert.</param>
         /// <returns>The converted time.</returns>
         private static DateTime ConvertUnixTime(ulong unixTimeMs)
-	    {
-	        return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTimeMs);
-	    }
+        {
+            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTimeMs);
+        }
         #endregion
 
         #region Related Profile
         private FirefoxProfile _Profile;
-		/// <summary>
-		/// profile related to the signon file
-		/// </summary>
-		public FirefoxProfile Profile
-		{
-			get { return _Profile; }
-			set { _Profile = value; }
-		}
-		#endregion
+        /// <summary>
+        /// profile related to the signon file
+        /// </summary>
+        public FirefoxProfile Profile
+        {
+            get { return _Profile; }
+            set { _Profile = value; }
+        }
+        #endregion
 
-		#region File Data
-		private int _Version = 0;
-		/// <summary>
-		/// The version of the file
-		/// </summary>
-		public int Version
-		{
-			get { return _Version; }
-			set { _Version = value; }
-		}
+        #region File Data
+        private int _Version = 0;
+        /// <summary>
+        /// The version of the file
+        /// </summary>
+        public int Version
+        {
+            get { return _Version; }
+            set { _Version = value; }
+        }
 
-		private List<FirefoxSignonSite> _SignonSites = new List<FirefoxSignonSite>();
-		/// <summary>
-		/// Collection of singons that were stored in the file
-		/// </summary>
-		public List<FirefoxSignonSite> SignonSites
-		{
-			get { return _SignonSites; }
-		}
+        private List<FirefoxSignonSite> _SignonSites = new List<FirefoxSignonSite>();
+        /// <summary>
+        /// Collection of singons that were stored in the file
+        /// </summary>
+        public List<FirefoxSignonSite> SignonSites
+        {
+            get { return _SignonSites; }
+        }
 
-		private List<String> _ExcludeHosts = new List<string>();
-		/// <summary>
-		/// hosts that have been excluded
-		/// </summary>
-		public List<String> ExcludeHosts
-		{
-			get { return _ExcludeHosts; }
-		}
-		#endregion
+        private List<String> _ExcludeHosts = new List<string>();
+        /// <summary>
+        /// hosts that have been excluded
+        /// </summary>
+        public List<String> ExcludeHosts
+        {
+            get { return _ExcludeHosts; }
+        }
+        #endregion
 
-		#region Information on Versions
-		private static string[] _SignonFileNames = null;
-		/// <summary>
-		/// the file name used for each version of firefox
-		/// </summary>
-		public static string[] SignonFileNames
-		{
-			get
-			{
-				if (_SignonFileNames == null)
-				{
-					_SignonFileNames = new string[4];
-					_SignonFileNames[0] = null;
-					_SignonFileNames[1] = "signons.txt";
-					_SignonFileNames[2] = "signons2.txt";
-					_SignonFileNames[3] = "signons3.txt";
-				}
+        #region Information on Versions
+        private static string[] _SignonFileNames = null;
+        /// <summary>
+        /// the file name used for each version of firefox
+        /// </summary>
+        public static string[] SignonFileNames
+        {
+            get
+            {
+                if (_SignonFileNames == null)
+                {
+                    _SignonFileNames = new string[4];
+                    _SignonFileNames[0] = null;
+                    _SignonFileNames[1] = "signons.txt";
+                    _SignonFileNames[2] = "signons2.txt";
+                    _SignonFileNames[3] = "signons3.txt";
+                }
 
-				return _SignonFileNames;
-			}
-		}
+                return _SignonFileNames;
+            }
+        }
 
-		private static string[] _SignonHeaderValues = null;
-		/// <summary>
-		/// the headers used for each version of firefox
-		/// </summary>
-		public static string[] SignonHeaderValues
-		{
-			get
-			{
-				if (_SignonHeaderValues == null)
-				{
-					_SignonHeaderValues = new string[4];
-					_SignonHeaderValues[0] = null;
-					_SignonHeaderValues[1] = "#2c";
-					_SignonHeaderValues[2] = "#2d";
-					_SignonHeaderValues[3] = "#2e";
-				}
+        private static string[] _SignonHeaderValues = null;
+        /// <summary>
+        /// the headers used for each version of firefox
+        /// </summary>
+        public static string[] SignonHeaderValues
+        {
+            get
+            {
+                if (_SignonHeaderValues == null)
+                {
+                    _SignonHeaderValues = new string[4];
+                    _SignonHeaderValues[0] = null;
+                    _SignonHeaderValues[1] = "#2c";
+                    _SignonHeaderValues[2] = "#2d";
+                    _SignonHeaderValues[3] = "#2e";
+                }
 
-				return _SignonHeaderValues;
-			}
-		}
-		#endregion
+                return _SignonHeaderValues;
+            }
+        }
+        #endregion
 
-	}
+    }
 }
