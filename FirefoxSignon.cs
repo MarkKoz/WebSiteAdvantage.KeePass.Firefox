@@ -1,4 +1,4 @@
-/*	WebSiteAdvantage KeePass to Firefox 
+/*	WebSiteAdvantage KeePass to Firefox
  *	Copyright (C) 2008 - 2012  Anthony James McCreath
  *
  *	This library is free software; you can redistribute it and/or
@@ -78,5 +78,44 @@ namespace WebSiteAdvantage.KeePass.Firefox
 			set { _LoginFormDomain = value; }
 		}
 
+		private DateTimeOffset? _TimeCreated;
+		/// <summary>
+		/// Unix time of when the entry was created.
+		/// </summary>
+		public DateTimeOffset? TimeCreated
+		{
+			get { return _TimeCreated; }
+			set { _TimeCreated = value; }
+		}
+
+		private DateTimeOffset? _TimeLastUsed;
+		/// <summary>
+		/// Unix time of when the entry was last used.
+		/// </summary>
+		public DateTimeOffset? TimeLastUsed
+		{
+			get { return _TimeLastUsed; }
+			set { _TimeLastUsed = value; }
+		}
+
+		private DateTimeOffset? _TimePasswordChanged;
+		/// <summary>
+		/// Unix time of when the entry was last modified.
+		/// </summary>
+		public DateTimeOffset? TimePasswordChanged
+		{
+			get { return _TimePasswordChanged; }
+			set { _TimePasswordChanged = value; }
+		}
+
+		private ulong _TimesUsed;
+		/// <summary>
+		/// Unix time of when the entry was last modified.
+		/// </summary>
+		public ulong TimesUsed
+		{
+			get { return _TimesUsed; }
+			set { _TimesUsed = value; }
+		}
 	}
 }

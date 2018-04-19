@@ -1,4 +1,4 @@
-/*	WebSiteAdvantage KeePass to Firefox 
+/*	WebSiteAdvantage KeePass to Firefox
  *	Copyright (C) 2008 - 2012  Anthony James McCreath
  *
  *	This library is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
 				throw new Exception("Failed to determine the location of the default Firefox Profile");
 
             SECStatus result1;
-            
+
             try
             {
                 result1 = NSS3.NSS_Init(Profile.ProfilePath); // init for profile
@@ -135,15 +135,15 @@ namespace WebSiteAdvantage.KeePass.Firefox
                             signon.Password = NSS3.DecodeAndDecrypt(login["encryptedPassword"].ToString());
                             signon.PasswordField = login["passwordField"].ToString();
                             signon.LoginFormDomain = login["formSubmitURL"].ToString();
+                            signon.TimeCreated = ConvertUnixTime((ulong) login["timeCreated"]);
+                            signon.TimeLastUsed = ConvertUnixTime((ulong) login["timeLastUsed"]);
+                            signon.TimePasswordChanged = ConvertUnixTime((ulong) login["timePasswordChanged"]);
+                            signon.TimesUsed = (ulong) login["timesUsed"];
 
                             Debug.WriteLine(login["id"].ToString());
                             Debug.WriteLine(login["httpRealm"].ToString()); // null?
                             Debug.WriteLine(login["guid"].ToString());
                             Debug.WriteLine(login["encType"].ToString());
-                            Debug.WriteLine(login["timeCreated"].ToString());
-                            Debug.WriteLine(login["timeLastUsed"].ToString());
-                            Debug.WriteLine(login["timePasswordChanged"].ToString());
-                            Debug.WriteLine(login["timesUsed"].ToString());
                         }
                     }
                     else
@@ -199,9 +199,25 @@ namespace WebSiteAdvantage.KeePass.Firefox
 
                                 Type adapterType = _SQLite.GetType("System.Data.SQLite.SQLiteDataAdapter");
 
-                                IDataAdapter adapter = (IDataAdapter)Activator.CreateInstance(adapterType, new object[] {"SELECT "+
-								"id, hostname, httpRealm, formSubmitURL, usernameField, passwordField, encryptedUsername, encryptedPassword, guid, encType "+
-								"FROM moz_logins ORDER BY hostname", connection});
+                                IDataAdapter adapter = (IDataAdapter)Activator.CreateInstance(
+                                    adapterType,
+                                    new object[]
+                                    {
+                                        @"SELECT
+                                            hostname,
+                                            formSubmitURL,
+                                            usernameField,
+                                            passwordField,
+                                            encryptedUsername,
+                                            encryptedPassword,
+                                            timeCreated,
+                                            timeLastUsed,
+                                            timePasswordChanged,
+                                            timesUsed
+                                        FROM moz_logins
+                                        ORDER BY hostname",
+                                        connection
+                                    });
 
                                 //SQLiteDataAdapter adapter = new SQLiteDataAdapter(
                                 //    "SELECT "+
@@ -239,19 +255,50 @@ namespace WebSiteAdvantage.KeePass.Firefox
                                     {
                                         FirefoxSignon signon = new FirefoxSignon();
                                         signonSite.Signons.Add(signon);
+
                                         string u = NSS3.DecodeAndDecrypt(row["encryptedUsername"].ToString());
                                         Debug.WriteLine("U=" + u);
                                         signon.UserName = u;
+
                                         getting = "usernamefield for " + u;
-                                        signon.UserNameField = row.IsNull("usernameField") ? String.Empty : row["usernameField"].ToString();
+                                        signon.UserNameField = row.IsNull("usernameField")
+                                            ? String.Empty
+                                            : row["usernameField"].ToString();
+
                                         getting = "password for " + u;
                                         string p = NSS3.DecodeAndDecrypt(row["encryptedPassword"].ToString());
                                         Debug.WriteLine("P=" + p);
                                         signon.Password = p;
+
                                         getting = "passwordfield for " + u;
-                                        signon.PasswordField = row.IsNull("passwordField") ? String.Empty : row["passwordField"].ToString();
+                                        signon.PasswordField = row.IsNull("passwordField")
+                                            ? String.Empty
+                                            : row["passwordField"].ToString();
+
                                         getting = "formurl for " + u;
-                                        signon.LoginFormDomain = row.IsNull("formSubmitURL") ? String.Empty : row["formSubmitURL"].ToString();
+                                        signon.LoginFormDomain = row.IsNull("formSubmitURL")
+                                            ? String.Empty
+                                            : row["formSubmitURL"].ToString();
+
+                                        getting = "timeCreated for " + u;
+                                        signon.TimeCreated = row.IsNull("timeCreated")
+                                            ? null
+                                            : ConvertUnixTime(row["timeCreated"].ToString());
+
+                                        getting = "timeLastUsed for " + u;
+                                        signon.TimeLastUsed = row.IsNull("timeLastUsed")
+                                            ? null
+                                            : ConvertUnixTime(row["timeLastUsed"].ToString());
+
+                                        getting = "timePasswordChanged for " + u;
+                                        signon.TimePasswordChanged = row.IsNull("timePasswordChanged")
+                                            ? null
+                                            : ConvertUnixTime(row["timePasswordChanged"].ToString());
+
+                                        getting = "timesUsed for " + u;
+                                        signon.TimesUsed = row.IsNull("timesUsed")
+                                            ? 0
+                                            : (ulong) row["timesUsed"];
                                     }
                                     catch (Exception ex)
                                     {
@@ -421,10 +468,32 @@ namespace WebSiteAdvantage.KeePass.Firefox
 				NSS3.NSS_Shutdown();
 			}
 		}
-		#endregion
 
-		#region Related Profile
-		private FirefoxProfile _Profile;
+        /// <summary>
+        /// Converts a unix time, in miliseconds, to a <see cref="Nullable{DateTime}"/> in UTC.
+        /// </summary>
+        /// <param name="unixTimeMs">The unix timestamp, in miliseconds, to convert.</param>
+        /// <returns>The converted time.</returns>
+	    private static DateTime? ConvertUnixTime(string unixTimeMs)
+        {
+            return ulong.TryParse(unixTimeMs, out ulong parsedTime)
+                ? ConvertUnixTime(parsedTime)
+                : default(DateTime?);
+	    }
+
+        /// <summary>
+        /// Converts a unix time, in miliseconds, to a <see cref="Nullable{DateTime}"/> in UTC.
+        /// </summary>
+        /// <param name="unixTimeMs">The unix timestamp, in miliseconds, to convert.</param>
+        /// <returns>The converted time.</returns>
+        private static DateTime ConvertUnixTime(ulong unixTimeMs)
+	    {
+	        return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTimeMs);
+	    }
+        #endregion
+
+        #region Related Profile
+        private FirefoxProfile _Profile;
 		/// <summary>
 		/// profile related to the signon file
 		/// </summary>
@@ -457,7 +526,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
 
 		private List<String> _ExcludeHosts = new List<string>();
 		/// <summary>
-		/// hosts that have been excluded 
+		/// hosts that have been excluded
 		/// </summary>
 		public List<String> ExcludeHosts
 		{
