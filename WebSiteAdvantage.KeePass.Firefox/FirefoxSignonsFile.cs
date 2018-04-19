@@ -18,14 +18,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using WebSiteAdvantage.KeePass.Firefox.Gecko;
+using System.Data.SQLite;
 using System.Diagnostics;
-using System.Data;
-using System.Reflection;
-using System.Windows.Forms;
-using Newtonsoft.Json.Linq;
+using System.IO;
+
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using WebSiteAdvantage.KeePass.Firefox.Gecko;
 
 namespace WebSiteAdvantage.KeePass.Firefox
 {
@@ -46,17 +46,18 @@ namespace WebSiteAdvantage.KeePass.Firefox
 
             return file;
         }
-        private Assembly _SQLite = null;
+
         /// <summary>
-        /// load this object with signon data related to the supplied profile
+        /// Loads this object with signon data from a <paramref name="profile"/>.
         /// </summary>
-        /// <param name="profile"></param>
-        public void Load(FirefoxProfile profile,string password)
+        /// <param name="profile">The profile from which to load signons.</param>
+        /// <param name="password"></param>
+        public void Load(FirefoxProfile profile, string password)
         {
             Profile = profile;
 
             if (Profile.ProfilePath == null)
-                throw new Exception("Failed to determine the location of the default Firefox Profile");
+                throw new FileNotFoundException("Failed to determine the location of the default Firefox Profile.");
 
             SECStatus result1;
 
@@ -69,7 +70,6 @@ namespace WebSiteAdvantage.KeePass.Firefox
                 throw new Exception("Failed to Init Profile (" + Profile.ProfilePath + "): " + ex.Message, ex);
             }
 
-
             if (result1 != SECStatus.Success)
             {
                 Int32 error = NSPR4.PR_GetError();
@@ -79,7 +79,6 @@ namespace WebSiteAdvantage.KeePass.Firefox
 
             try
             {
-
                 IntPtr slot = NSS3.PK11_GetInternalKeySlot(); // get a slot to work with
 
                 if (slot == IntPtr.Zero)
@@ -96,366 +95,9 @@ namespace WebSiteAdvantage.KeePass.Firefox
                         throw new Exception("Failed to Validate Password: " + errorName);
                     }
 
-                    string header = null;
-                    string signonFile = null;
-
-                    string loginsJsonPath = Path.Combine(Profile.ProfilePath, "logins.json");
-                    if (File.Exists(loginsJsonPath))
-                    {
-                        JObject responseJson = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(loginsJsonPath));
-
-                        foreach (JObject login in responseJson["logins"])
-                        {
-                            FirefoxSignonSite signonSite = null;
-
-                            string hostname = login["hostname"].ToString();
-
-                            foreach (FirefoxSignonSite site in this.SignonSites)
-                            {
-                                if (site.Site == hostname)
-                                {
-                                    signonSite = site;
-                                    break;
-                                }
-                            }
-
-                            if (signonSite == null)
-                            {
-                                signonSite = new FirefoxSignonSite();
-                                signonSite.Site = hostname;
-                                this.SignonSites.Add(signonSite);
-                            }
-
-                            FirefoxSignon signon = new FirefoxSignon();
-                            signonSite.Signons.Add(signon);
-
-                            signon.UserName = NSS3.DecodeAndDecrypt(login["encryptedUsername"].ToString());
-                            signon.UserNameField = login["usernameField"].ToString();
-                            signon.Password = NSS3.DecodeAndDecrypt(login["encryptedPassword"].ToString());
-                            signon.PasswordField = login["passwordField"].ToString();
-                            signon.LoginFormDomain = login["formSubmitURL"].ToString();
-                            signon.TimeCreated = ConvertUnixTime((ulong) login["timeCreated"]);
-                            signon.TimeLastUsed = ConvertUnixTime((ulong) login["timeLastUsed"]);
-                            signon.TimePasswordChanged = ConvertUnixTime((ulong) login["timePasswordChanged"]);
-                            signon.TimesUsed = (ulong) login["timesUsed"];
-
-                            Debug.WriteLine(login["id"].ToString());
-                            Debug.WriteLine(login["httpRealm"].ToString()); // null?
-                            Debug.WriteLine(login["guid"].ToString());
-                            Debug.WriteLine(login["encType"].ToString());
-                        }
-                    }
-                    else
-                    {
-
-                        string signonSqlLitePath = Path.Combine(Profile.ProfilePath, "signons.sqlite");
-
-                        if (File.Exists(signonSqlLitePath))
-                        {
-                            if (_SQLite == null)
-                            {
-                                if (KeePassUtilities.Is64Bit)
-                                {
-                                    if (!File.Exists(Application.StartupPath + @"\WebSiteAdvantageKeePassFirefox-SQLite\4x64\System.Data.SQLite.dll"))
-                                        throw new Exception("Failed to find " + Application.StartupPath + @"\WebSiteAdvantageKeePassFirefox-SQLite\4x64\System.Data.SQLite.dll Please re-check the installation process");
-
-                                    try
-                                    {
-                                        _SQLite = Assembly.LoadFrom(Application.StartupPath + @"\WebSiteAdvantageKeePassFirefox-SQLite\4x64\System.Data.SQLite.dll");
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        throw new Exception("Failed to load SQLite 64: " + ex.Message, ex);
-                                    }
-                                }
-                                else
-                                {
-                                    if (!File.Exists(Application.StartupPath + @"\WebSiteAdvantageKeePassFirefox-SQLite\4x32\System.Data.SQLite.dll"))
-                                        throw new Exception("Failed to find " + Application.StartupPath + @"\WebSiteAdvantageKeePassFirefox-SQLite\4x32\System.Data.SQLite.dll Please re-check the installation process");
-
-                                    try
-                                    {
-                                        _SQLite = Assembly.LoadFrom(Application.StartupPath + @"\WebSiteAdvantageKeePassFirefox-SQLite\4x32\System.Data.SQLite.dll");
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        throw new Exception("Failed to load SQLite 32: " + ex.Message, ex);
-                                    }
-                                }
-                            }
-
-                            IDbConnection connection = (IDbConnection)_SQLite.CreateInstance("System.Data.SQLite.SQLiteConnection");
-
-                            connection.ConnectionString = "Data Source=" + signonSqlLitePath + ";Version=3;New=False;Compress=True;";
-
-                            //		SQLiteConnection connection = new SQLiteConnection("Data Source=" + signonSqlLitePath + ";Version=3;New=False;Compress=True;");
-
-                            try
-                            {
-                                connection.Open();
-
-                                //		SQLiteCommand command = new SQLiteCommand("select id, desc from mains", connection);
-
-                                Type adapterType = _SQLite.GetType("System.Data.SQLite.SQLiteDataAdapter");
-
-                                IDataAdapter adapter = (IDataAdapter)Activator.CreateInstance(
-                                    adapterType,
-                                    new object[]
-                                    {
-                                        @"SELECT
-                                            hostname,
-                                            formSubmitURL,
-                                            usernameField,
-                                            passwordField,
-                                            encryptedUsername,
-                                            encryptedPassword,
-                                            timeCreated,
-                                            timeLastUsed,
-                                            timePasswordChanged,
-                                            timesUsed
-                                        FROM moz_logins
-                                        ORDER BY hostname",
-                                        connection
-                                    });
-
-                                //SQLiteDataAdapter adapter = new SQLiteDataAdapter(
-                                //    "SELECT "+
-                                //    "id, hostname, httpRealm, formSubmitURL, usernameField, passwordField, encryptedUsername, encryptedPassword, guid, encType "+
-                                //    "FROM moz_logins ORDER BY hostname", connection);
-
-                                DataSet dataSet = new DataSet();
-
-                                adapter.Fill(dataSet);
-
-                                int rowNumber = 0;
-
-                                foreach (DataRow row in dataSet.Tables[0].Rows)
-                                {
-                                    rowNumber++;
-                                    FirefoxSignonSite signonSite = null;
-
-                                    //foreach (DataColumn column in dataSet.Tables[0].Columns)
-                                    //{
-                                    //    Debug.WriteLine(column.ColumnName + "=" + (row.IsNull(column) ? "NULL" : row[column].ToString()));
-                                    //}
-
-                                    string hostname = row["hostname"].ToString();
-
-                                    if (signonSite == null || signonSite.Site != hostname)
-                                    {
-                                        signonSite = new FirefoxSignonSite();
-                                        signonSite.Site = hostname;
-                                        this.SignonSites.Add(signonSite);
-                                    };
-
-                                    string getting = "username";
-
-                                    try
-                                    {
-                                        FirefoxSignon signon = new FirefoxSignon();
-                                        signonSite.Signons.Add(signon);
-
-                                        string u = NSS3.DecodeAndDecrypt(row["encryptedUsername"].ToString());
-                                        Debug.WriteLine("U=" + u);
-                                        signon.UserName = u;
-
-                                        getting = "usernamefield for " + u;
-                                        signon.UserNameField = row.IsNull("usernameField")
-                                            ? String.Empty
-                                            : row["usernameField"].ToString();
-
-                                        getting = "password for " + u;
-                                        string p = NSS3.DecodeAndDecrypt(row["encryptedPassword"].ToString());
-                                        Debug.WriteLine("P=" + p);
-                                        signon.Password = p;
-
-                                        getting = "passwordfield for " + u;
-                                        signon.PasswordField = row.IsNull("passwordField")
-                                            ? String.Empty
-                                            : row["passwordField"].ToString();
-
-                                        getting = "formurl for " + u;
-                                        signon.LoginFormDomain = row.IsNull("formSubmitURL")
-                                            ? String.Empty
-                                            : row["formSubmitURL"].ToString();
-
-                                        getting = "timeCreated for " + u;
-                                        signon.TimeCreated = row.IsNull("timeCreated")
-                                            ? null
-                                            : ConvertUnixTime(row["timeCreated"].ToString());
-
-                                        getting = "timeLastUsed for " + u;
-                                        signon.TimeLastUsed = row.IsNull("timeLastUsed")
-                                            ? null
-                                            : ConvertUnixTime(row["timeLastUsed"].ToString());
-
-                                        getting = "timePasswordChanged for " + u;
-                                        signon.TimePasswordChanged = row.IsNull("timePasswordChanged")
-                                            ? null
-                                            : ConvertUnixTime(row["timePasswordChanged"].ToString());
-
-                                        getting = "timesUsed for " + u;
-                                        signon.TimesUsed = row.IsNull("timesUsed")
-                                            ? 0
-                                            : (ulong) row["timesUsed"];
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        throw new Exception("Could not get " + getting + " on " + hostname + " : " + ex.Message, ex);
-                                    }
-                                }
-
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new Exception("Failed to Query Firefox: " + ex.Message, ex);
-                            }
-                            finally
-                            {
-                                connection.Close();
-                            }
-
-                        }
-                        else
-                        {
-                            int version = 3;
-
-                            while (signonFile == null && version > 0)
-                            {
-                                string signonPath = Path.Combine(Profile.ProfilePath, SignonFileNames[version]);
-                                if (File.Exists(signonPath))
-                                {
-                                    signonFile = signonPath;
-                                    header = SignonHeaderValues[version];
-                                }
-                                else
-                                    version--;
-                            }
-
-                            Version = version;
-
-                            if (version == 0)
-                                throw new Exception("Could not find a signon file to process in " + Profile.ProfilePath);
-
-                            StreamReader reader = File.OpenText(signonFile);
-
-                            try
-                            {
-                                // first line is header
-                                string line = reader.ReadLine();
-
-                                if (line == null)
-                                    throw new Exception("signon file is empty");
-
-                                if (line != header)
-                                    throw new Exception("signon file contains an invalid header");
-
-                                // lines till the first dot are host excludes
-
-                                while ((line = reader.ReadLine()) != null && line != ".")
-                                {
-                                    Debug.WriteLine("# " + line);
-
-                                    Debug.WriteLine("ExcludeHost: " + line);
-
-                                    this.ExcludeHosts.Add(line);
-                                }
-                                FirefoxSignonSite signonSite = null;
-                                // read each entry
-
-                                while (line != null)
-                                {
-                                    Debug.WriteLine("## " + line);
-
-                                    // here after any dot (.) therefore new site
-                                    // all new lines pass through if they contain a dot (.)
-
-                                    signonSite = null;
-
-
-                                    while ((line = reader.ReadLine()) != null && line != ".")
-                                    {
-                                        Debug.WriteLine("# " + line);
-                                        // first line is host
-                                        // subsequent lines are pairs of name value
-                                        // if name starts with * then its a password
-                                        // values are encrypted
-
-                                        if (signonSite == null) // site is reset to null after each dot (.)
-                                        {
-                                            signonSite = new FirefoxSignonSite();
-                                            signonSite.Site = line;
-
-                                            this.SignonSites.Add(signonSite);
-
-                                            Debug.WriteLine("Site: " + line);
-
-                                            line = reader.ReadLine(); // move to the next line
-                                            Debug.WriteLine("# " + line);
-                                        }
-                                        // else stick to the same line for the next parser, second site entries dont have a dot (.) nor site line
-
-
-
-                                        if (line != null && line != ".")
-                                        {
-                                            FirefoxSignon signon = new FirefoxSignon();
-                                            signonSite.Signons.Add(signon);
-                                            // User field
-                                            signon.UserNameField = line;
-                                            Debug.WriteLine("UserNameField: " + signon.UserNameField);
-
-                                            if ((line = reader.ReadLine()) != null && line != ".")
-                                            {
-                                                Debug.WriteLine("# " + line);
-                                                // User Value
-                                                string u = NSS3.DecodeAndDecrypt(line);
-                                                signon.UserName = u;
-                                                Debug.WriteLine("UserName: " + signon.UserName);
-
-                                                if ((line = reader.ReadLine()) != null && line != ".")
-                                                {
-                                                    Debug.WriteLine("# " + line);
-                                                    // Password field
-                                                    signon.PasswordField = line.TrimStart(new char[] { '*' });
-                                                    Debug.WriteLine("PasswordField: " + signon.PasswordField);
-
-                                                    if ((line = reader.ReadLine()) != null && line != ".")
-                                                    {
-                                                        Debug.WriteLine("# " + line);
-                                                        // Password Value
-                                                        string p = NSS3.DecodeAndDecrypt(line);
-                                                        signon.Password = p;
-                                                        Debug.WriteLine("Password: " + signon.Password);
-
-                                                        if ((line = reader.ReadLine()) != null && line != ".")
-                                                        {
-                                                            Debug.WriteLine("# " + line);
-                                                            // Domain
-                                                            signon.LoginFormDomain = line;
-                                                            Debug.WriteLine("LoginFormDomain: " + signon.LoginFormDomain);
-
-                                                            if ((line = reader.ReadLine()) != null && line != ".")
-                                                            {
-                                                                Debug.WriteLine("# " + line);
-                                                                // Filler
-                                                                Debug.WriteLine("Filler: " + line);
-                                                            }
-                                                            // note: if there is not a dot (.) after this then its a subsequent entry for the same site
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            finally
-                            {
-                                reader.Close();
-                            }
-                        }
-                    }
+                    if (!LoadJson())
+                        if (!LoadDatabase())
+                            LoadLegacy();
                 }
                 finally
                 {
@@ -469,15 +111,282 @@ namespace WebSiteAdvantage.KeePass.Firefox
         }
 
         /// <summary>
-        /// Converts a unix time, in miliseconds, to a <see cref="Nullable{DateTime}"/> in UTC.
+        /// Loads signons from the <c>logins.json</c> file.
         /// </summary>
-        /// <param name="unixTimeMs">The unix timestamp, in miliseconds, to convert.</param>
-        /// <returns>The converted time.</returns>
-        private static DateTime? ConvertUnixTime(string unixTimeMs)
+        /// <returns><c>true</c> if the file was found and loaded; <c>false</c> if the file doesn't exist.</returns>
+        private bool LoadJson()
         {
-            return ulong.TryParse(unixTimeMs, out ulong parsedTime)
-                ? ConvertUnixTime(parsedTime)
-                : default(DateTime?);
+            string loginsJsonPath = Path.Combine(Profile.ProfilePath, "logins.json");
+
+            if (!File.Exists(loginsJsonPath))
+                return false;
+
+            JObject responseJson = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(loginsJsonPath));
+
+            foreach (JObject login in responseJson["logins"])
+            {
+                FirefoxSignonSite signonSite = null;
+
+                string hostname = login["hostname"].ToString();
+
+                foreach (FirefoxSignonSite site in this.SignonSites)
+                {
+                    if (site.Site == hostname)
+                    {
+                        signonSite = site;
+                        break;
+                    }
+                }
+
+                if (signonSite == null)
+                {
+                    signonSite = new FirefoxSignonSite();
+                    signonSite.Site = hostname;
+                    this.SignonSites.Add(signonSite);
+                }
+
+                FirefoxSignon signon = new FirefoxSignon();
+                signonSite.Signons.Add(signon);
+
+                signon.UserName = NSS3.DecodeAndDecrypt(login["encryptedUsername"].ToString());
+                signon.UserNameField = login["usernameField"].ToString();
+                signon.Password = NSS3.DecodeAndDecrypt(login["encryptedPassword"].ToString());
+                signon.PasswordField = login["passwordField"].ToString();
+                signon.LoginFormDomain = login["formSubmitURL"].ToString();
+                signon.TimeCreated = ConvertUnixTime((ulong)login["timeCreated"]);
+                signon.TimeLastUsed = ConvertUnixTime((ulong)login["timeLastUsed"]);
+                signon.TimePasswordChanged = ConvertUnixTime((ulong)login["timePasswordChanged"]);
+                signon.TimesUsed = (ulong)login["timesUsed"];
+
+                Debug.WriteLine(login["id"].ToString());
+                Debug.WriteLine(login["httpRealm"].ToString()); // null?
+                Debug.WriteLine(login["guid"].ToString());
+                Debug.WriteLine(login["encType"].ToString());
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Loads signons from the <c>signons.sqlite</c> database.
+        /// </summary>
+        /// <returns><c>true</c> if the database was found and loaded; <c>false</c> if the database doesn't exist.</returns>
+        private bool LoadDatabase()
+        {
+            string dbPath = Path.Combine(Profile.ProfilePath, "signons.sqlite");
+
+            // FailIfMissing throws SQLiteException if not found.
+            // However, that exception is too general so file existsence is checked this way.
+            if (!File.Exists(dbPath))
+                return false;
+
+            var connectionBuilder = new SQLiteConnectionStringBuilder
+            {
+                DataSource = dbPath,
+                Version = 3,
+                FailIfMissing = true,
+                ReadOnly = true
+            };
+
+            const string commandText =
+                @"SELECT
+                        hostname,
+                        formSubmitURL,
+                        usernameField,
+                        passwordField,
+                        encryptedUsername,
+                        encryptedPassword,
+                        timeCreated,
+                        timeLastUsed,
+                        timePasswordChanged,
+                        timesUsed
+                    FROM moz_logins
+                    ORDER BY hostname";
+
+            // Doesn't handle exceptions since they were just being rethrown anyway. Default messages are adequately descriptive.
+            using (var connection = new SQLiteConnection(connectionBuilder.ConnectionString).OpenAndReturn())
+            using (var command = new SQLiteCommand(commandText, connection))
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                FirefoxSignonSite signonSite = null;
+
+                while (reader.Read())
+                {
+                    string hostname = reader.GetString("hostname");
+
+                    // This works because the query results are sorted by hostname.
+                    if (signonSite == null || signonSite.Site != hostname)
+                    {
+                        signonSite = new FirefoxSignonSite { Site = hostname };
+                        SignonSites.Add(signonSite);
+                    }
+
+                    var signon = new FirefoxSignon();
+                    signonSite.Signons.Add(signon);
+
+                    signon.UserName = NSS3.DecodeAndDecrypt(reader.GetString("encryptedUsername"));
+                    Debug.WriteLine("U=" + signon.UserName);
+
+                    signon.UserNameField = reader.GetString("usernameField");
+
+                    signon.Password = NSS3.DecodeAndDecrypt(reader.GetString("encryptedPassword"));
+                    Debug.WriteLine("P=" + signon.Password);
+
+                    signon.PasswordField = reader.GetString("passwordField");
+                    signon.LoginFormDomain = reader.GetString("formSubmitURL");
+                    signon.TimeCreated = ConvertUnixTime(reader.GetNullableUInt64("timeCreated"));
+                    signon.TimeLastUsed = ConvertUnixTime(reader.GetNullableUInt64("timeLastUsed"));
+                    signon.TimePasswordChanged = ConvertUnixTime(reader.GetNullableUInt64("timePasswordChanged"));
+                    signon.TimesUsed = reader.GetUInt64("timesUsed");
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Loads signons from the <c>signons.txt</c> file used by legacy versions of Firefox.
+        /// </summary>
+        private void LoadLegacy()
+        {
+            int version = 3;
+            string header = null;
+            string signonFile = null;
+
+            while (signonFile == null && version > 0)
+            {
+                string signonPath = Path.Combine(Profile.ProfilePath, SignonFileNames[version]);
+                if (File.Exists(signonPath))
+                {
+                    signonFile = signonPath;
+                    header = SignonHeaderValues[version];
+                }
+                else
+                    version--;
+            }
+
+            Version = version;
+
+            if (version == 0)
+                throw new Exception("Could not find a signon file to process in " + Profile.ProfilePath);
+
+            StreamReader reader = File.OpenText(signonFile);
+
+            try
+            {
+                // first line is header
+                string line = reader.ReadLine();
+
+                if (line == null)
+                    throw new Exception("signon file is empty");
+
+                if (line != header)
+                    throw new Exception("signon file contains an invalid header");
+
+                // lines till the first dot are host excludes
+
+                while ((line = reader.ReadLine()) != null && line != ".")
+                {
+                    Debug.WriteLine("# " + line);
+
+                    Debug.WriteLine("ExcludeHost: " + line);
+
+                    this.ExcludeHosts.Add(line);
+                }
+                FirefoxSignonSite signonSite = null;
+                // read each entry
+
+                while (line != null)
+                {
+                    Debug.WriteLine("## " + line);
+
+                    // here after any dot (.) therefore new site
+                    // all new lines pass through if they contain a dot (.)
+
+                    signonSite = null;
+
+
+                    while ((line = reader.ReadLine()) != null && line != ".")
+                    {
+                        Debug.WriteLine("# " + line);
+                        // first line is host
+                        // subsequent lines are pairs of name value
+                        // if name starts with * then its a password
+                        // values are encrypted
+
+                        if (signonSite == null) // site is reset to null after each dot (.)
+                        {
+                            signonSite = new FirefoxSignonSite();
+                            signonSite.Site = line;
+
+                            this.SignonSites.Add(signonSite);
+
+                            Debug.WriteLine("Site: " + line);
+
+                            line = reader.ReadLine(); // move to the next line
+                            Debug.WriteLine("# " + line);
+                        }
+                        // else stick to the same line for the next parser, second site entries dont have a dot (.) nor site line
+
+
+
+                        if (line != null && line != ".")
+                        {
+                            FirefoxSignon signon = new FirefoxSignon();
+                            signonSite.Signons.Add(signon);
+                            // User field
+                            signon.UserNameField = line;
+                            Debug.WriteLine("UserNameField: " + signon.UserNameField);
+
+                            if ((line = reader.ReadLine()) != null && line != ".")
+                            {
+                                Debug.WriteLine("# " + line);
+                                // User Value
+                                string u = NSS3.DecodeAndDecrypt(line);
+                                signon.UserName = u;
+                                Debug.WriteLine("UserName: " + signon.UserName);
+
+                                if ((line = reader.ReadLine()) != null && line != ".")
+                                {
+                                    Debug.WriteLine("# " + line);
+                                    // Password field
+                                    signon.PasswordField = line.TrimStart(new char[] { '*' });
+                                    Debug.WriteLine("PasswordField: " + signon.PasswordField);
+
+                                    if ((line = reader.ReadLine()) != null && line != ".")
+                                    {
+                                        Debug.WriteLine("# " + line);
+                                        // Password Value
+                                        string p = NSS3.DecodeAndDecrypt(line);
+                                        signon.Password = p;
+                                        Debug.WriteLine("Password: " + signon.Password);
+
+                                        if ((line = reader.ReadLine()) != null && line != ".")
+                                        {
+                                            Debug.WriteLine("# " + line);
+                                            // Domain
+                                            signon.LoginFormDomain = line;
+                                            Debug.WriteLine("LoginFormDomain: " + signon.LoginFormDomain);
+
+                                            if ((line = reader.ReadLine()) != null && line != ".")
+                                            {
+                                                Debug.WriteLine("# " + line);
+                                                // Filler
+                                                Debug.WriteLine("Filler: " + line);
+                                            }
+                                            // note: if there is not a dot (.) after this then its a subsequent entry for the same site
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                reader.Close();
+            }
         }
 
         /// <summary>
@@ -485,9 +394,11 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// </summary>
         /// <param name="unixTimeMs">The unix timestamp, in miliseconds, to convert.</param>
         /// <returns>The converted time.</returns>
-        private static DateTime ConvertUnixTime(ulong unixTimeMs)
+        private static DateTime? ConvertUnixTime(ulong? unixTimeMs)
         {
-            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTimeMs);
+            return unixTimeMs.HasValue
+                ? new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTimeMs.Value)
+                : default(DateTime?);
         }
         #endregion
 
