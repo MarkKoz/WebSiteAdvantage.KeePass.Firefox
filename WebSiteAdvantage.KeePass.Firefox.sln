@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8DCDAB71-52C2-4B38-A580-DE96E3DE44AE}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		WebSiteAdvantageKeePassFirefox-lgpl.txt = WebSiteAdvantageKeePassFirefox-lgpl.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSiteAdvantage.KeePass.Firefox", "WebSiteAdvantage.KeePass.Firefox\WebSiteAdvantage.KeePass.Firefox.csproj", "{C2CE32F2-A994-4645-92AB-EF89A13BD422}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		Release64|Any CPU = Release64|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2CE32F2-A994-4645-92AB-EF89A13BD422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2CE32F2-A994-4645-92AB-EF89A13BD422}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2CE32F2-A994-4645-92AB-EF89A13BD422}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2CE32F2-A994-4645-92AB-EF89A13BD422}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2CE32F2-A994-4645-92AB-EF89A13BD422}.Release64|Any CPU.ActiveCfg = Release64|Any CPU
+		{C2CE32F2-A994-4645-92AB-EF89A13BD422}.Release64|Any CPU.Build.0 = Release64|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {96305BDB-68DB-492A-9FB4-AA8B65B53BFF}
+	EndGlobalSection
+EndGlobal
