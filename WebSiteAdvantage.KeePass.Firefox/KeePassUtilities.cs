@@ -158,12 +158,6 @@ namespace WebSiteAdvantage.KeePass.Firefox
         }
         #endregion
 
-        public static bool Is64Bit
-        {
-            get
-            {
-                return IntPtr.Size == 8;
-            }
-        }
+        public static bool Is64Bit => IntPtr.Size == 8;
     }
 }

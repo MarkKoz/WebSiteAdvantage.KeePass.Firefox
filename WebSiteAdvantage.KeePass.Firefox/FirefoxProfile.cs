@@ -115,30 +115,24 @@ namespace WebSiteAdvantage.KeePass.Firefox
         #endregion
 
         #region Profile Data
-        private string _ProfilePath;
+
         /// <summary>
         /// The location of the Firefox profile this relates to
         /// </summary>
-        public string ProfilePath
-        {
-            get { return _ProfilePath; }
-            set { _ProfilePath = value; }
-        }
+        public string ProfilePath { get; set; }
 
-        private FirefoxSignonsFile _SignonsFile = null;
+        private FirefoxSignonsFile _SignonsFile;
+
         /// <summary>
-        /// loaded data from the profiles signonfile
+        /// Retrieves this profile's signon file.
         /// </summary>
+        /// <param name="password">The signon file's master password.</param>
+        /// <returns>This profile's signon file.</returns>
         public FirefoxSignonsFile GetSignonsFile(string password)
         {
-
-            if (_SignonsFile == null)
-            {
-                _SignonsFile = FirefoxSignonsFile.Create(this, password);
-            }
-
-            return _SignonsFile;
+            return _SignonsFile ?? (_SignonsFile = FirefoxSignonsFile.Create(this, password));
         }
+
         #endregion
     }
 }

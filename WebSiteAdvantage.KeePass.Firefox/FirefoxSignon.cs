@@ -21,99 +21,53 @@ using System;
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
-    /// saved sign on information from Firefox's signon file
+    /// Saved sign on information from Firefox's signon file.
     /// </summary>
     public class FirefoxSignon
     {
-
-        private string _UserNameField;
         /// <summary>
-        /// name of HTML user name field or blank for HTTP authentication
+        /// The name of HTML user name field or blank for HTTP authentication.
         /// </summary>
-        public string UserNameField
-        {
-            get { return _UserNameField; }
-            set { _UserNameField = value; }
-        }
+        public string UserNameField { get; set; }
 
-        private string _PasswordField;
         /// <summary>
-        /// name of HTML password field or blank for HTTP authentication
+        /// The name of HTML password field or blank for HTTP authentication.
         /// </summary>
-        public string PasswordField
-        {
-            get { return _PasswordField; }
-            set { _PasswordField = value; }
-        }
+        public string PasswordField { get; set; }
 
-        private string _UserName;
         /// <summary>
-        /// user name
+        /// The decrypted username.
         /// </summary>
-        public string UserName
-        {
-            get { return _UserName; }
-            set { _UserName = value; }
-        }
+        public string UserName { get; set; }
 
-        private string _Password;
         /// <summary>
-        /// password
+        /// The decrypted password.
         /// </summary>
-        public string Password
-        {
-            get { return _Password; }
-            set { _Password = value; }
-        }
+        public string Password { get; set; }
 
-        private string _LoginFormDomain;
         /// <summary>
-        /// the domain of the log in form
+        /// The login form's domain.
         /// </summary>
-        public string LoginFormDomain
-        {
-            get { return _LoginFormDomain; }
-            set { _LoginFormDomain = value; }
-        }
+        public string LoginFormDomain { get; set; }
 
-        private DateTimeOffset? _TimeCreated;
         /// <summary>
-        /// Unix time of when the entry was created.
+        /// When the entry was created.
         /// </summary>
-        public DateTimeOffset? TimeCreated
-        {
-            get { return _TimeCreated; }
-            set { _TimeCreated = value; }
-        }
+        public DateTimeOffset? TimeCreated { get; set; }
 
-        private DateTimeOffset? _TimeLastUsed;
         /// <summary>
-        /// Unix time of when the entry was last used.
+        /// When the entry was last used.
         /// </summary>
-        public DateTimeOffset? TimeLastUsed
-        {
-            get { return _TimeLastUsed; }
-            set { _TimeLastUsed = value; }
-        }
+        public DateTimeOffset? TimeLastUsed { get; set; }
 
-        private DateTimeOffset? _TimePasswordChanged;
         /// <summary>
-        /// Unix time of when the entry was last modified.
+        /// When the entry was last modified.
         /// </summary>
-        public DateTimeOffset? TimePasswordChanged
-        {
-            get { return _TimePasswordChanged; }
-            set { _TimePasswordChanged = value; }
-        }
+        public DateTimeOffset? TimePasswordChanged { get; set; }
 
-        private ulong _TimesUsed;
         /// <summary>
-        /// Unix time of when the entry was last modified.
+        /// Amount of times the entry was used.
         /// </summary>
-        public ulong TimesUsed
-        {
-            get { return _TimesUsed; }
-            set { _TimesUsed = value; }
-        }
+        public ulong TimesUsed { get; set; }
     }
 }

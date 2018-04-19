@@ -27,76 +27,37 @@ namespace WebSiteAdvantage.KeePass.Firefox
     /// </summary>
     public class FirefoxProfileInfo
     {
-        private string _Code;
         /// <summary>
-        /// string from the header part of a profile definition. In []
+        /// String from the header part of a profile definition. In []
         /// </summary>
-        public string Code
-        {
-            get { return _Code; }
-            set { _Code = value; }
-        }
-
-        private string _Name;
-        /// <summary>
-        /// name of the profile
-        /// </summary>
-        public string Name
-        {
-            get { return _Name; }
-            set { _Name = value; }
-        }
-
-        private bool _IsRelative = true; // not sure wshat the default should be
-        /// <summary>
-        /// Is the path relative
-        /// </summary>
-        public bool IsRelative
-        {
-            get { return _IsRelative; }
-            set { _IsRelative = value; }
-        }
-
-        private string _Path;
-        /// <summary>
-        /// path to the profile
-        /// </summary>
-        public string Path
-        {
-            get { return _Path; }
-            set { _Path = value; }
-        }
-
-        private bool _Default = false;
-        /// <summary>
-        /// Is this the default profile
-        /// </summary>
-        public bool Default
-        {
-            get { return _Default; }
-            set { _Default = value; }
-        }
-
-        private string _BasePath;
-        public string BasePath
-        {
-            get { return _BasePath;}
-            set { _BasePath = value;}
-        }
+        public string Code { get; set; }
 
         /// <summary>
-        /// The full path which should be used as the ProfilePath when accessing the profile file
+        /// The profile's name.
         /// </summary>
-        public string AbsolutePath
-        {
-            get
-            {
-                if (this.IsRelative)
-                    return this.BasePath + "\\" + this.Path.Replace("/", "\\");
-                else
-                    return this.Path.Replace("/", "\\");
-            }
-        }
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Denotes if the profile's path is relative.
+        /// </summary>
+        public bool IsRelative { get; set; } = true; // Not sure what the default should be.
+
+        /// <summary>
+        /// The path to the profile.
+        /// </summary>
+        public string Path { get; set; }
+
+        /// <summary>
+        /// Denotes if the profile is the default profile.
+        /// </summary>
+        public bool Default { get; set; } = false;
+
+        public string BasePath { get; set; }
+
+        /// <summary>
+        /// The full path which should be used as the ProfilePath when accessing the profile file.
+        /// </summary>
+        public string AbsolutePath => IsRelative ? BasePath + "\\" + Path.Replace("/", "\\") : Path.Replace("/", "\\");
 
         public static FirefoxProfileInfo FindPrimaryProfile()
         {

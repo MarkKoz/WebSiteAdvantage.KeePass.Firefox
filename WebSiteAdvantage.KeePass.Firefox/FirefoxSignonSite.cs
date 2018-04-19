@@ -21,27 +21,18 @@ using System.Collections.Generic;
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
-    /// saved site information from Firefox's signon file
+    /// Contains signons which are for the same site/hostname.
     /// </summary>
     public class FirefoxSignonSite
     {
-        private string _Site;
         /// <summary>
-        /// site with a saved password
+        /// The site's hostname.
         /// </summary>
-        public string Site
-        {
-            get { return _Site; }
-            set { _Site = value; }
-        }
+        public string Site { get; set; }
 
-        private List<FirefoxSignon> _Signons = new List<FirefoxSignon>();
         /// <summary>
-        /// collection of signons for this site
+        /// Collection of signons for the site.
         /// </summary>
-        public List<FirefoxSignon> Signons
-        {
-            get { return _Signons; }
-        }
+        public List<FirefoxSignon> Signons { get; } = new List<FirefoxSignon>();
     }
 }

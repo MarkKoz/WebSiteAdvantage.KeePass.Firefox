@@ -400,93 +400,49 @@ namespace WebSiteAdvantage.KeePass.Firefox
                 ? new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTimeMs.Value)
                 : default(DateTime?);
         }
+
         #endregion
 
         #region Related Profile
-        private FirefoxProfile _Profile;
+
         /// <summary>
-        /// profile related to the signon file
+        /// The profile associated with the signon file.
         /// </summary>
-        public FirefoxProfile Profile
-        {
-            get { return _Profile; }
-            set { _Profile = value; }
-        }
+        public FirefoxProfile Profile { get; set; }
+
         #endregion
 
         #region File Data
-        private int _Version = 0;
-        /// <summary>
-        /// The version of the file
-        /// </summary>
-        public int Version
-        {
-            get { return _Version; }
-            set { _Version = value; }
-        }
 
-        private List<FirefoxSignonSite> _SignonSites = new List<FirefoxSignonSite>();
         /// <summary>
-        /// Collection of singons that were stored in the file
+        /// The version of the legacy signon file.
         /// </summary>
-        public List<FirefoxSignonSite> SignonSites
-        {
-            get { return _SignonSites; }
-        }
+        public int Version { get; set; } = 0;
 
-        private List<String> _ExcludeHosts = new List<string>();
         /// <summary>
-        /// hosts that have been excluded
+        /// Collection of singons that were stored in the file, grouped by website.
         /// </summary>
-        public List<String> ExcludeHosts
-        {
-            get { return _ExcludeHosts; }
-        }
+        public List<FirefoxSignonSite> SignonSites { get; } = new List<FirefoxSignonSite>();
+
+        /// <summary>
+        /// Hosts that have been excluded.
+        /// </summary>
+        public List<string> ExcludeHosts { get; } = new List<string>();
+
         #endregion
 
         #region Information on Versions
-        private static string[] _SignonFileNames = null;
+
         /// <summary>
-        /// the file name used for each version of firefox
+        /// The file names, indexed by Firefox version, of the legacy signon file.
         /// </summary>
-        public static string[] SignonFileNames
-        {
-            get
-            {
-                if (_SignonFileNames == null)
-                {
-                    _SignonFileNames = new string[4];
-                    _SignonFileNames[0] = null;
-                    _SignonFileNames[1] = "signons.txt";
-                    _SignonFileNames[2] = "signons2.txt";
-                    _SignonFileNames[3] = "signons3.txt";
-                }
+        public static string[] SignonFileNames { get; } = { null, "signons.txt", "signons2.txt", "signons3.txt" };
 
-                return _SignonFileNames;
-            }
-        }
-
-        private static string[] _SignonHeaderValues = null;
         /// <summary>
-        /// the headers used for each version of firefox
+        /// The headers, indexed by Firefox version, of the legacy signon file.
         /// </summary>
-        public static string[] SignonHeaderValues
-        {
-            get
-            {
-                if (_SignonHeaderValues == null)
-                {
-                    _SignonHeaderValues = new string[4];
-                    _SignonHeaderValues[0] = null;
-                    _SignonHeaderValues[1] = "#2c";
-                    _SignonHeaderValues[2] = "#2d";
-                    _SignonHeaderValues[3] = "#2e";
-                }
+        public static string[] SignonHeaderValues { get; } = { null, "#2c", "#2d", "#2e" };
 
-                return _SignonHeaderValues;
-            }
-        }
         #endregion
-
     }
 }
