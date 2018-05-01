@@ -17,18 +17,31 @@
  */
 
 using System;
-using System.IO;
 
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
     /// Some common methods to help doing keepass stuff
     /// </summary>
-    public class KeePassUtilities
+    public static class KeePassUtilities
     {
-        public static string Version = "2.28"; // [assembly: AssemblyFileVersion("2.21.0.0")]
+        /// <summary>
+        /// Path to the log file.
+        /// </summary>
+        public static string LogPath { get; set; } = @"WebSiteAdvantage.KeePass.Firefox.log";
 
-        public static int AutoTypeTextSize = 15; // arbitrary size limit. titles change and its better you get multiple options by default than none
+        /// <summary>
+        /// This library's version.
+        /// </summary>
+        public static string Version { get; } = "2.28"; // [assembly: AssemblyFileVersion("2.21.0.0")]
+
+        /// <summary>
+        /// Maximum length of the string to assign to an <c>autotypewindow</c> parameter.
+        /// </summary>
+        /// <remarks>
+        /// Defaults value is arbitrary. Titles change and it's better to get multiple options by default than none.
+        /// </remarks>
+        public static int AutoTypeTextSize { get; set; } = 15;
 
         /// <summary>
         /// Returns the text to use in an autotypewindow parameter
@@ -56,107 +69,6 @@ namespace WebSiteAdvantage.KeePass.Firefox
             // suggested solution to some lost char issues...
             // return "{DELAY 50}1{DELAY 50}{BACKSPACE}{USERNAME}{TAB}{DELAY 50}1{DELAY 50}{BACKSPACE}{PASSWORD}{ENTER}";
         }
-
-        #region Logging
-        public static void LogMessage(string text)
-        {
-#if DEBUG
-            try
-            {
-                FileStream stream = null;
-                StreamWriter writer = null;
-                try
-                {
-                    stream = File.Open("WebSiteAdvantage.KeePass.Firefox.log", FileMode.Append, FileAccess.Write, FileShare.Read);
-                    writer = new StreamWriter(stream);
-
-                    writer.WriteLine(DateTime.Now.ToString()+": "+text);
-                }
-                finally
-                {
-                    if (writer != null)
-                        writer.Close();
-
-                    if (stream != null)
-                        stream.Close();
-                }
-            }
-            catch { }
-#endif
-        }
-        /// <summary>
-        /// Append an exceptions details to the log file
-        /// </summary>
-        /// <param name="ex"></param>
-        public static void LogException(Exception ex)
-        {
-#if DEBUG
-            try
-            {
-                FileStream stream = null;
-                StreamWriter writer = null;
-                try
-                {
-                    stream = File.Open("WebSiteAdvantage.KeePass.Firefox.log", FileMode.Append, FileAccess.Write, FileShare.Read);
-                    writer = new StreamWriter(stream);
-
-                    WriteException(writer, ex);
-                }
-                finally
-                {
-                    if (writer != null)
-                        writer.Close();
-
-                    if (stream != null)
-                        stream.Close();
-                }
-            }
-            catch { }
-#endif
-        }
-        /// <summary>
-        /// Write an exceptions details. includes inner exceptions
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="ex"></param>
-        public static void WriteException(StreamWriter writer, Exception ex)
-        {
-            _WriteException(writer, ex);
-            writer.WriteLine("=========================================");
-        }
-
-        /// <summary>
-        /// Recursivly write exception content and their inner exceptions
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="ex"></param>
-        private static void _WriteException(StreamWriter writer, Exception ex)
-        {
-
-            writer.WriteLine("Time: " + DateTime.Now.ToString());
-            writer.WriteLine("Message: " + ex.Message);
-
-            if (ex.Data != null && ex.Data.Count > 0)
-            {
-                writer.WriteLine("Data:");
-                foreach (object key in ex.Data)
-                    writer.WriteLine(key.ToString() + ": " + ex.Data[key].ToString());
-            }
-
-            writer.WriteLine("StackTrace:");
-            writer.WriteLine(ex.StackTrace);
-
-            writer.WriteLine("TargetSite: " + ex.TargetSite);
-            writer.WriteLine("Source: " + ex.Source);
-
-            if (ex.InnerException != null)
-            {
-                writer.WriteLine("-----------------------------------------");
-                _WriteException(writer, ex.InnerException);
-            }
-
-        }
-        #endregion
 
         public static bool Is64Bit => IntPtr.Size == 8;
     }

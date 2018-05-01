@@ -23,6 +23,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
 
+using NLog;
+
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
@@ -30,6 +32,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
     /// </summary>
     public class InternetAccessor
     {
+        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
 
         // Regex expressions to scrape the title from a web page
         private static Regex _TitleOpenRegex = new Regex("^.*< *title.*?>(.*)$");              // matches a title tag <title>...
@@ -118,7 +121,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
             }
             catch(Exception ex)
             {
-                KeePassUtilities.LogException(ex);
+                _Logger.Error(ex, null);
                 return null;
             }
 

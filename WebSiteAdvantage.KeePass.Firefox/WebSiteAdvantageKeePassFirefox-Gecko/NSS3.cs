@@ -19,6 +19,8 @@
 using System;
 using System.Runtime.InteropServices;
 
+using NLog;
+
 namespace WebSiteAdvantage.KeePass.Firefox.Gecko
 {
     /// <summary>
@@ -26,6 +28,8 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
     /// </summary>
     public static class NSS3
     {
+        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
+
         public static void LoadDependencies()
         {
             switch (Gecko.Version)
@@ -299,7 +303,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
             {
 
                 status = SECStatus.Failure;
-                KeePassUtilities.LogException(ex);
+                _Logger.Error(ex, "Decription failed.");
             }
             finally
             {
@@ -353,7 +357,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
             catch(Exception ex)
             {
                 status = SECStatus.Failure;
-                KeePassUtilities.LogException(ex);
+                _Logger.Error(ex, "Decoding failed.");
             }
             finally
             {

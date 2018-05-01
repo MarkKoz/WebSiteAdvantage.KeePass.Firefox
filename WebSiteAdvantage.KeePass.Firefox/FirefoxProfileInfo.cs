@@ -20,6 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using NLog;
+
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
@@ -27,6 +29,8 @@ namespace WebSiteAdvantage.KeePass.Firefox
     /// </summary>
     public class FirefoxProfileInfo
     {
+        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// String from the header part of a profile definition. In []
         /// </summary>
@@ -134,7 +138,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
             // searcvh the profile for a profile entry that contains "Default=1"
             if (File.Exists(profilesIni))
             {
-                KeePassUtilities.LogMessage("File exists at " + profilesIni);
+                _Logger.Info("File exists at " + profilesIni);
 
                 StreamReader reader = File.OpenText(profilesIni);
 
@@ -190,7 +194,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
                 }
             }
             else
-                KeePassUtilities.LogMessage("File does not exist at " + profilesIni);
+                _Logger.Debug("File does not exist at " + profilesIni);
         }
         #endregion
 
