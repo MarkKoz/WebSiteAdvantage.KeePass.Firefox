@@ -17,114 +17,88 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Text.RegularExpressions;
-using System.Web;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+using HtmlAgilityPack;
 
 using NLog;
 
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
-    /// utilities to help gathering information from the internet
+    /// Utilities for scraping information from the internet.
     /// </summary>
-    public class InternetAccessor
+    public static class InternetAccessor
     {
+        private static readonly HttpClient _HttpClient = new HttpClient();
         private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
 
-        // Regex expressions to scrape the title from a web page
-        private static Regex _TitleOpenRegex = new Regex("^.*< *title.*?>(.*)$");              // matches a title tag <title>...
-        private static Regex _TitleCloseRegex = new Regex("^(.*)< */ *title.*>.*$");           // matches a closing title tag ...</title>
-        private static Regex _TitleRegex = new Regex("^.*< *title.*?>(.*)< */ *title.*>.*$");  // matches a single line with title tags <title>....</title>
-
-
-        // cache captured titlesw
-        private Dictionary<string, string> _TitleCache = new Dictionary<string, string>();
+        static InternetAccessor()
+        {
+            // ServicePointManager.MaxServicePointIdleTime =
+            // ServicePointManager.MaxServicePoints =
+            // ServicePointManager.DefaultConnectionLimit = ;
+            _HttpClient.Timeout = TimeSpan.FromSeconds(10);
+        }
 
         /// <summary>
-        /// finds the contents of the title tag of a page
-        /// results are cached based on the supplied result
+        /// Scrapes a title from a website.
         /// </summary>
-        /// <param name="url">page to scrape</param>
-        /// <returns>title</returns>
-        public string ScrapeTitle(string url)
+        /// <param name="url">The URL to the website to scrape.</param>
+        /// <returns>The scraped title or <c>null</c> if scraping failed.</returns>
+        public static async Task<string> ScrapeTitleAsync(string url)
         {
+            string errorMessage = $"Error scraping title for {url}.";
+
             try
             {
-                if (_TitleCache.ContainsKey(url.ToLower()))
-                    return _TitleCache[url.ToLower()];
-
-                _TitleCache[url.ToLower()] = null; // so dont repeat failures
-
-                string title = null;
-
-                WebRequest request = WebRequest.Create(url);
-                request.Timeout = 10 * 1000; // ms
-
-                WebResponse response = request.GetResponse(); // makes request
-
-                Stream s = response.GetResponseStream();
-                TextReader tr = new StreamReader(s);
-
-                string titleBlock = "";
-
-                try
+                using (HttpResponseMessage response = await _HttpClient.GetAsync(new Uri(url)).ConfigureAwait(false))
                 {
-                    // read in all text from a line with the start title tag <title> to a line with the end title tag </title>
-                    // limit to 5 lines between the tags incase its invalid html!
+                    if (!response.IsSuccessStatusCode)
+                        throw new HttpRequestException($"A request for {url} failed: {(int)response.StatusCode} {response.ReasonPhrase}.");
 
-                    bool titleFound = false; // tracks if we have hit the opening tag
-
-                    string line = null; // current line
-
-                    int lines = 0; // number of title lines so far
-
-                    // this gathers all the required lines as one line. it includes the tags ond other outer info which will be stripped later
-                    while ((line = tr.ReadLine()) != null && lines < 5)
+                    using (Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                     {
-                        if (_TitleOpenRegex.IsMatch(line)) // has an opening tag
-                            titleFound = true;
+                        var document = new HtmlDocument();
+                        document.Load(stream);
+                        string title = document.DocumentNode.SelectSingleNode("html/head/title")?.InnerText;
 
-                        if (titleFound) // store all lines as a single trimmed line
+                        try
                         {
-                            titleBlock += " " + line.Trim();
-                            lines++;
+                            return title;
                         }
-
-                        if (_TitleCloseRegex.IsMatch(line)) // has a closing tag so stop
-                            break;
+                        finally
+                        {
+                            if (title == null)
+                                _Logger.Error(errorMessage);
+                            else
+                                _Logger.Info($"Successfully scraped title for {url}.");
+                        }
                     }
                 }
-                finally
-                {
-                    tr.Close();
-                    s.Close();
-                    response.Close();
-                }
-
-                titleBlock = titleBlock.Trim();
-
-                if (titleBlock.Length > 0)
-                {
-                    // now capture the part of the titleBlick which is inside the title tags
-                    Match match = _TitleRegex.Match(titleBlock);
-                    if (match.Success)
-                    {
-                        title = HttpUtility.HtmlDecode(match.Groups[1].Captures[0].Value.Trim());
-                        _TitleCache[url.ToLower()] = title;
-                    }
-                }
-
-                return title;
             }
-            catch(Exception ex)
+            catch (Exception e)
             {
-                _Logger.Error(ex, null);
+                switch (e) {
+                    case ArgumentException _: // TODO: Too broad. Intended to catch invalid URI schemes.
+                    case UriFormatException _:
+                        _Logger.Error($"The URI {url} is invalid.");
+
+                        break;
+                    case TaskCanceledException _: // TODO: Too broad.
+                        _Logger.Error($"The request for {url} timed out ({_HttpClient.Timeout}).");
+
+                        break;
+                    default:
+                        _Logger.Error(e, errorMessage);
+
+                        break;
+                }
+
                 return null;
             }
-
         }
     }
 }
