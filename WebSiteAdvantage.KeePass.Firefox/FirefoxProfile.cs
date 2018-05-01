@@ -17,122 +17,130 @@
  */
 
 using System;
+using System.Linq;
 
 using WebSiteAdvantage.KeePass.Firefox.Gecko;
 
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
-    /// Represents a user profile in Firefox
+    /// Represents a Firefox user profile.
     /// </summary>
-    public class FirefoxProfile
+    public class FirefoxProfile : IDisposable
     {
         #region Constructors
+
         /// <summary>
-        /// Create a profile based on a profile info object
+        /// Constructs a profile from the given <see cref="FirefoxProfileInfo"/>.
         /// </summary>
-        /// <param name="profile"></param>
-        public FirefoxProfile(FirefoxProfileInfo profile)
+        /// <param name="profileInfo">The <see cref="FirefoxProfileInfo"/> from which to construct a profile.</param>
+        /// <param name="password">The profile's master password.</param>
+        /// <exception cref="ArgumentException">Thrown when the profile cannot be initialised or the password is invalid.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="profileInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
+        public FirefoxProfile(FirefoxProfileInfo profileInfo, string password) : this(profileInfo?.AbsolutePath, password)
         {
-            ProfilePath = profile.AbsolutePath;
+            Info = profileInfo;
         }
 
         /// <summary>
-        /// Creates a profile related to the supplied profile path
+        /// Constructs a profile for the profile at the given path.
         /// </summary>
-        /// <param name="profilePath"></param>
-        public  FirefoxProfile(string profilePath)
+        /// <param name="profilePath">The absolute path to the profile.</param>
+        /// <param name="password">The profile's master password.</param>
+        /// <exception cref="ArgumentException">Thrown when the profile cannot be initialised or the password is invalid.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="profilePath"/> is <c>null</c>.</exception>
+        /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
+        public FirefoxProfile(string profilePath, string password)
         {
-            ProfilePath = profilePath;
+            Path = profilePath ?? throw new ArgumentNullException(nameof(profilePath), "Could not find a profile.");
+
+            Init();
+            Login(password);
         }
 
         /// <summary>
-        /// Creates a profile related to the default firefox profile
+        /// Constructs a profile for the default profile or the first profile found.
         /// </summary>
-        public  FirefoxProfile()
-        {
-            // find it!
+        /// <param name="password">The profile's master password.</param>
+        /// <exception cref="ArgumentException">Thrown when the password is invalid.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when no profile can be found.</exception>
+        /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
+        public FirefoxProfile(string password) : this(FirefoxProfileParser.GetPrimaryProfile(), password) { }
 
-            FirefoxProfileInfo profile = FirefoxProfileParser.GetPrimaryProfile();
-
-
-            if (profile == null)
-                throw new Exception("Could not find a Firefox profile");
-            ProfilePath = profile.AbsolutePath;
-        }
         #endregion
 
-        #region Initialising the Profile
         /// <summary>
-        /// Sets NSS to use this profile
+        /// Initialises NSS.
         /// </summary>
-        public void Init()
+        /// <exception cref="NsprException">Thrown when the profile cannot be initialised.</exception>
+        private void Init()
         {
-            if (this.ProfilePath == null)
-                throw new Exception("Failed to determine the location of the default Firefox Profile");
-
-            SECStatus initStatus = NSS3.NSS_Init(this.ProfilePath);
-
-            if (initStatus != SECStatus.Success)
-            {
-                Int32 error = NSPR4.PR_GetError();
-                string errorName = NSPR4.PR_ErrorToName(error);
-                throw new Exception("Failed to initialise profile at " + this.ProfilePath + " reason " + errorName);
-            }
-
+            if (NSS3.NSS_Init(Path) != SECStatus.Success)
+                throw new NsprException($"Failed to initialise profile at {Path}.");
         }
 
         /// <summary>
-        /// init this profile and validate its password
+        /// Initialise the profile and validates its password.
         /// </summary>
-        /// <param name="password"></param>
-        public void Login(string password)
+        /// <param name="password">The profile's master password.</param>
+        /// <exception cref="ArgumentException">Thrown when the password cannot be validated.</exception>
+        /// <exception cref="NsprException">Thrown when a key slot cannot be retrieved.</exception>
+        private void Login(string password)
         {
-            if (this.ProfilePath == null)
-                throw new Exception("Failed to determine the location of the default Firefox Profile");
+            _Slot = NSS3.PK11_GetInternalKeySlot(); // Gets a slot to work with.
 
-            SECStatus initStatus = NSS3.NSS_Init(this.ProfilePath);
+            if (_Slot == IntPtr.Zero)
+                throw new NsprException("Failed to get internal key slot.");
 
-            if (initStatus != SECStatus.Success)
+            SECStatus result = NSS3.PK11_CheckUserPassword(_Slot, password);
+
+            if (result != SECStatus.Success)
             {
-                Int32 error = NSPR4.PR_GetError();
+                int error = NSPR4.PR_GetError();
                 string errorName = NSPR4.PR_ErrorToName(error);
-                throw new Exception("Failed to initialise profile for login at " + this.ProfilePath + " reason (" + error.ToString() + ") " + errorName);
-            }
 
-
-
-            SECStatus resultStatus = NSS3.CheckUserPassword(password);
-
-            if (resultStatus != SECStatus.Success)
-            {
-                Int32 error = NSPR4.PR_GetError();
-                string errorName = NSPR4.PR_ErrorToName(error);
-                throw new Exception("Failed to Validate Password: (" + error.ToString() + ") " + errorName);
+                throw new ArgumentException($"Failed to validate the profile's password: ({error}) {errorName}.", nameof(password));
             }
         }
-
-        #endregion
 
         #region Profile Data
 
-        /// <summary>
-        /// The location of the Firefox profile this relates to
-        /// </summary>
-        public string ProfilePath { get; set; }
-
+        private IntPtr _Slot;
         private FirefoxSignonsFile _SignonsFile;
+        private FirefoxProfileInfo _Info;
 
         /// <summary>
-        /// Retrieves this profile's signon file.
+        /// The profile's information.
         /// </summary>
-        /// <param name="password">The signon file's master password.</param>
-        /// <returns>This profile's signon file.</returns>
-        public FirefoxSignonsFile GetSignonsFile(string password)
+        public FirefoxProfileInfo Info
         {
-            return _SignonsFile ?? (_SignonsFile = FirefoxSignonsFile.Create(this, password));
+            // Parses the profiles.ini. Needed when the path constructor is used.
+            get => _Info ?? (_Info = FirefoxProfileParser
+                       .GetProfiles(new[] { System.IO.Path.Combine(Path, "profiles.ini") }).FirstOrDefault());
+
+            private set => _Info = value;
         }
 
+        /// <summary>
+        /// Retrieves the profile's signon file.
+        /// </summary>
+        /// <returns>The profile's signon file.</returns>
+        public FirefoxSignonsFile SignonsFile => _SignonsFile ?? (_SignonsFile = new FirefoxSignonsFile(Path));
+
+        /// <summary>
+        /// The profile's absolute path.
+        /// </summary>
+        public string Path { get; }
+
         #endregion
+
+        public void Dispose()
+        {
+            NSS3.PK11_FreeSlot(_Slot);
+
+            if (NSS3.NSS_Shutdown() != SECStatus.Success)
+                throw new NsprException("Failed to shut down.");
+        }
     }
 }

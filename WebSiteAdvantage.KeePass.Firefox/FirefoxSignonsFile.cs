@@ -35,88 +35,26 @@ namespace WebSiteAdvantage.KeePass.Firefox
     public class FirefoxSignonsFile
     {
         #region Construction and Loading
-        /// <summary>
-        /// Quick way to load a new file
-        /// </summary>
-        /// <param name="profile">Profile with the signon file</param>
-        public static FirefoxSignonsFile Create(FirefoxProfile profile, string password)
-        {
-            FirefoxSignonsFile file = new FirefoxSignonsFile();
-            file.Load(profile, password);
-
-            return file;
-        }
 
         /// <summary>
-        /// Loads this object with signon data from a <paramref name="profile"/>.
+        /// Constructs a signon file
         /// </summary>
-        /// <param name="profile">The profile from which to load signons.</param>
-        /// <param name="password"></param>
-        public void Load(FirefoxProfile profile, string password)
+        /// <param name="profilePath">The absolute path to the profile from which to load the signon file.</param>
+        public FirefoxSignonsFile(string profilePath)
         {
-            Profile = profile;
-
-            if (Profile.ProfilePath == null)
-                throw new FileNotFoundException("Failed to determine the location of the default Firefox Profile.");
-
-            SECStatus result1;
-
-            try
-            {
-                result1 = NSS3.NSS_Init(Profile.ProfilePath); // init for profile
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Failed to Init Profile (" + Profile.ProfilePath + "): " + ex.Message, ex);
-            }
-
-            if (result1 != SECStatus.Success)
-            {
-                Int32 error = NSPR4.PR_GetError();
-                string errorName = NSPR4.PR_ErrorToName(error);
-                throw new Exception("Failed to initialise profile for load at " + Profile.ProfilePath + " reason " + errorName);
-            }
-
-            try
-            {
-                IntPtr slot = NSS3.PK11_GetInternalKeySlot(); // get a slot to work with
-
-                if (slot == IntPtr.Zero)
-                    throw new Exception("Failed to GetInternalKeySlot");
-
-                try
-                {
-                    SECStatus result2 = NSS3.PK11_CheckUserPassword(slot, password);
-
-                    if (result2 != SECStatus.Success)
-                    {
-                        Int32 error = NSPR4.PR_GetError();
-                        string errorName = NSPR4.PR_ErrorToName(error);
-                        throw new Exception("Failed to Validate Password: " + errorName);
-                    }
-
-                    if (!LoadJson())
-                        if (!LoadDatabase())
-                            LoadLegacy();
-                }
-                finally
-                {
-                    NSS3.PK11_FreeSlot(slot);
-                }
-            }
-            finally
-            {
-                NSS3.NSS_Shutdown();
-            }
+            if (!LoadJson(profilePath))
+                if (!LoadDatabase(profilePath))
+                    LoadLegacy(profilePath);
         }
 
         /// <summary>
         /// Loads signons from the <c>logins.json</c> file.
         /// </summary>
+        /// <param name="profilePath">The absolute path to the profile from which to load the signon file.</param>
         /// <returns><c>true</c> if the file was found and loaded; <c>false</c> if the file doesn't exist.</returns>
-        private bool LoadJson()
+        private bool LoadJson(string profilePath)
         {
-            string loginsJsonPath = Path.Combine(Profile.ProfilePath, "logins.json");
+            string loginsJsonPath = Path.Combine(profilePath, "logins.json");
 
             if (!File.Exists(loginsJsonPath))
                 return false;
@@ -170,10 +108,11 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <summary>
         /// Loads signons from the <c>signons.sqlite</c> database.
         /// </summary>
+        /// <param name="profilePath">The absolute path to the profile from which to load the signon file.</param>
         /// <returns><c>true</c> if the database was found and loaded; <c>false</c> if the database doesn't exist.</returns>
-        private bool LoadDatabase()
+        private bool LoadDatabase(string profilePath)
         {
-            string dbPath = Path.Combine(Profile.ProfilePath, "signons.sqlite");
+            string dbPath = Path.Combine(profilePath, "signons.sqlite");
 
             // FailIfMissing throws SQLiteException if not found.
             // However, that exception is too general so file existsence is checked this way.
@@ -247,7 +186,8 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <summary>
         /// Loads signons from the <c>signons.txt</c> file used by legacy versions of Firefox.
         /// </summary>
-        private void LoadLegacy()
+        /// <param name="profilePath">The absolute path to the profile from which to load the signon file.</param>
+        private void LoadLegacy(string profilePath)
         {
             int version = 3;
             string header = null;
@@ -255,7 +195,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
 
             while (signonFile == null && version > 0)
             {
-                string signonPath = Path.Combine(Profile.ProfilePath, SignonFileNames[version]);
+                string signonPath = Path.Combine(profilePath, SignonFileNames[version]);
                 if (File.Exists(signonPath))
                 {
                     signonFile = signonPath;
@@ -268,7 +208,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
             Version = version;
 
             if (version == 0)
-                throw new Exception("Could not find a signon file to process in " + Profile.ProfilePath);
+                throw new Exception("Could not find a signon file to process in " + profilePath);
 
             StreamReader reader = File.OpenText(signonFile);
 
@@ -404,11 +344,6 @@ namespace WebSiteAdvantage.KeePass.Firefox
         #endregion
 
         #region Related Profile
-
-        /// <summary>
-        /// The profile associated with the signon file.
-        /// </summary>
-        public FirefoxProfile Profile { get; set; }
 
         #endregion
 
