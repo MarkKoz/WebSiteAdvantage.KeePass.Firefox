@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-using System;
 using System.Runtime.InteropServices;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Gecko.NSS64
@@ -24,9 +23,9 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko.NSS64
     public static class NSPR4
     {
         [DllImport("WebSiteAdvantageKeePassFirefox-Gecko\\NSS64\\nspr4.dll")] //, CallingConvention = CallingConvention.Cdecl)]
-        public static extern Int32 PR_GetError();
+        public static extern int PR_GetError();
 
-        [DllImport("WebSiteAdvantageKeePassFirefox-Gecko\\NSS64\\nspr4.dll")]
-        public static extern string PR_ErrorToName(Int32 code);
+        [DllImport("WebSiteAdvantageKeePassFirefox-Gecko\\NSS64\\nspr4.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern string PR_ErrorToName(int code);
     }
 }
