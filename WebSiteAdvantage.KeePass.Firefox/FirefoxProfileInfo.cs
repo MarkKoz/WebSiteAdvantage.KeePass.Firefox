@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using NLog;
 
@@ -63,38 +64,21 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// </summary>
         public string AbsolutePath => IsRelative ? BasePath + "\\" + Path.Replace("/", "\\") : Path.Replace("/", "\\");
 
+        #region Finding Profiles
+
+        /// <summary>
+        /// Retrieves the first default profile if it exists. Otherwise,
+        /// retrieves the first profile. Invalid profiles are excluded.
+        /// </summary>
+        /// <returns>The primary profile or <c>null</c> if none could be found.</returns>
         public static FirefoxProfileInfo FindPrimaryProfile()
         {
-            return FindPrimaryProfile(FindFirefoxProfileInfos());
-        }
-        /// <summary>
-        /// Either the first defualt profile or the first profile
-        /// excludes any invalid profiles
-        /// </summary>
-        /// <param name="profiles"></param>
-        /// <returns></returns>
-        public static FirefoxProfileInfo FindPrimaryProfile(List<FirefoxProfileInfo> profiles)
-        {
-            foreach (FirefoxProfileInfo profile in profiles)
-            {
-                if (profile.Default && !String.IsNullOrEmpty(profile.Path))
-                {
-                    return profile;
-                }
-            }
+            List<FirefoxProfileInfo> profiles = FindFirefoxProfileInfos();
 
-            foreach (FirefoxProfileInfo profile in profiles)
-            {
-                if (!String.IsNullOrEmpty(profile.Path))
-                {
-                    return profile;
-                }
-            }
-
-            return null;
+            return profiles.FirstOrDefault(p => p.Default && !string.IsNullOrEmpty(p.Path)) ??
+                   profiles.FirstOrDefault(p => !string.IsNullOrEmpty(p.Path));
         }
 
-        #region Finding Profiles
         /// <summary>
         /// try and find the current users default profile
         /// searches for firefox application data in:
