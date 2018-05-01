@@ -68,10 +68,10 @@ namespace WebSiteAdvantage.KeePass.Firefox
 
              sb.AppendLine("Assembly Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
 
-             if (KeePassUtilities.Is64Bit)
-                 sb.AppendLine("Processor: 64bit");
+             if (Environment.Is64BitProcess)
+                 sb.AppendLine("Process: 64bit");
              else
-                 sb.AppendLine("Processor: not 64bit");
+                 sb.AppendLine("Process: not 64bit");
 
              sb.AppendLine("Processor Architecture: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().ProcessorArchitecture.ToString());
 

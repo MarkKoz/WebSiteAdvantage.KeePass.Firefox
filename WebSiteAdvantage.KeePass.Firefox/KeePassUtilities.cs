@@ -69,7 +69,5 @@ namespace WebSiteAdvantage.KeePass.Firefox
             // suggested solution to some lost char issues...
             // return "{DELAY 50}1{DELAY 50}{BACKSPACE}{USERNAME}{TAB}{DELAY 50}1{DELAY 50}{BACKSPACE}{PASSWORD}{ENTER}";
         }
-
-        public static bool Is64Bit => IntPtr.Size == 8;
     }
 }

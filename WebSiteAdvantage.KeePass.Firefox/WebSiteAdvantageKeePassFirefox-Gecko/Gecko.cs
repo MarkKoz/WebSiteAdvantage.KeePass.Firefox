@@ -16,20 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+using System;
+
 namespace WebSiteAdvantage.KeePass.Firefox.Gecko
 {
     public class Gecko
     {
-//        public static string Version = "NSS310";
-        public static string Version
-        {
-            get
-            {
-                if (KeePassUtilities.Is64Bit)
-                    return "NSS64";
-
-                return "NSS312";
-            }
-        }
+        public static string Version => Environment.Is64BitProcess ? "NSS64" : "NSS312";
     }
 }
