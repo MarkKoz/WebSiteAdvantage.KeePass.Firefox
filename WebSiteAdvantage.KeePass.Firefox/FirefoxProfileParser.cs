@@ -7,7 +7,10 @@ using NLog;
 
 namespace WebSiteAdvantage.KeePass.Firefox
 {
-    public class FirefoxProfileParser
+    /// <summary>
+    /// Parses <c>profiles.ini</c> files.
+    /// </summary>
+    public static class FirefoxProfileParser
     {
         private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
 
