@@ -20,9 +20,16 @@ using System;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Gecko
 {
+    /// <summary>
+    /// A Netscape Portable Runtime API wrapper class.
+    /// </summary>
     public static class NSPR4
     {
-        public static Int32 PR_GetError()
+        /// <summary>
+        /// Returns the last set error code.
+        /// </summary>
+        /// <returns>The last set error code.</returns>
+        public static int PR_GetError()
         {
             switch (Gecko.Version)
             {
@@ -33,11 +40,16 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSPR4.PR_GetError();
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
-        public static string PR_ErrorToName(Int32 code)
+        /// <summary>
+        /// Returns the macro name for an error code, or NULL if the error code is not known.
+        /// </summary>
+        /// <param name="code">The error code for which to return a name.</param>
+        /// <returns>The error code's name.</returns>
+        public static string PR_ErrorToName(int code)
         {
             switch (Gecko.Version)
             {
@@ -48,8 +60,49 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSPR4.PR_ErrorToName(code);
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
+    }
+
+    /// <summary>
+    /// A Netscape Portable Runtime exception.
+    /// </summary>
+    public class NsprException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NsprException"/> class.
+        /// </summary>
+        public NsprException()
+        {
+            ErrorName = NSPR4.PR_ErrorToName(ErrorCode);
+            // TODO: Use PR_GetErrorText for the message?
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NsprException"/> class with a specified error message.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        public NsprException(string message) : base(message)
+        {
+            ErrorName = NSPR4.PR_ErrorToName(ErrorCode);
+        }
+
+        /*/// <summary>
+        /// Initializes a new instance of the <see cref="NsprException"/> class with a specified error message
+        /// and a reference to the inner exception that is the cause of this exception.
+        /// </summary>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
+        /// <param name="inner">The exception that is the cause of the current exception.</param>
+        public NsprException(string message, Exception inner) : base(message, inner)
+        {
+            ErrorName = NSPR4.PR_ErrorToName(ErrorCode);
+        }*/
+
+        // The code of the error which caused this exception.
+        public int ErrorCode { get; } = NSPR4.PR_GetError();
+
+        // The name of the error which caused this exception.
+        public string ErrorName { get; }
     }
 }
