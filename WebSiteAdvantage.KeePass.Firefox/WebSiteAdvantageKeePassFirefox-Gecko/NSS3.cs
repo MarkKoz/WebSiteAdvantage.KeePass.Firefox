@@ -24,7 +24,7 @@ using NLog;
 namespace WebSiteAdvantage.KeePass.Firefox.Gecko
 {
     /// <summary>
-    /// provides access to the nss3 dll
+    /// A Network Security Services API wraper class.
     /// </summary>
     public static class NSS3
     {
@@ -44,7 +44,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                     NSS64.NSS3.LoadDependencies();
                     break;
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -62,7 +62,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSS3.NSS_Init(profilePath);
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -79,7 +79,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSS3.NSS_Shutdown();
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -96,7 +96,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSS3.PK11_GetInternalKeySlot();
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -116,7 +116,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                     NSS64.NSS3.PK11_FreeSlot(slot);
                     break;
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -133,7 +133,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSS3.PK11_CheckUserPassword(slot, password);
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -150,7 +150,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSS3.PK11_Authenticate(slot, loadCerts, wincx);
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -167,7 +167,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSS3.PK11SDR_Decrypt(encryptedItem, ref  text, cx);
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -184,7 +184,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 case "NSS64":
                     return NSS64.NSS3.NSSBase64_DecodeBuffer(p1, p2, encoded, encoded_len);
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -204,7 +204,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                     NSS64.NSS3.SECITEM_FreeItem(ref  item, bDestroy);
                     break;
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
 
@@ -224,7 +224,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                     NSS64.NSS3.SECITEM_FreeItem(item, bDestroy);
                     break;
                 default:
-                    throw new Exception("Not Supported");
+                    throw new InvalidOperationException("Unsupported Gecko version.");
             }
         }
         #endregion
@@ -240,13 +240,13 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 data = data.Substring(1);
 
                 string buf = null;
-                NSS3.Decode(data, ref buf);
+                Decode(data, ref buf);
                 return buf;
             }
             else
             {
                 string buf = null;
-                NSS3.Decrypt(data, ref buf);
+                Decrypt(data, ref buf);
 
                 return buf;
             }
@@ -260,8 +260,8 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
         /// <returns>success status</returns>
         private static SECStatus Decrypt(string base64EncryptedData, ref string result)
         {
-            SECStatus status = SECStatus.Success;
-            SECItem decodedItem = new SECItem();
+            var status = SECStatus.Success;
+            var decodedItem = new SECItem();
             IntPtr decodedObject = IntPtr.Zero;
             result = string.Empty;
 
@@ -271,7 +271,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
             try
             {
 
-                decodedObject = NSS3.NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, base64EncryptedData, base64EncryptedData.Length);
+                decodedObject = NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, base64EncryptedData, base64EncryptedData.Length);
 
                 if (decodedObject == IntPtr.Zero)
                 {
@@ -279,14 +279,10 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                 }
                 else
                 {
-                    status = NSS3.PK11SDR_Decrypt(decodedObject, ref decodedItem, IntPtr.Zero);
+                    status = PK11SDR_Decrypt(decodedObject, ref decodedItem, IntPtr.Zero);
 
                     if (status != SECStatus.Success)
-                    {
-                        Int32 error = NSPR4.PR_GetError();
-                        string errorName = NSPR4.PR_ErrorToName(error);
-                        throw new Exception("Failed to decrypt data: " + errorName);
-                    }
+                        throw new NsprException("Failed to decrypt data.");
 
                     try
                     {
@@ -294,7 +290,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                     }
                     finally
                     {
-                        NSS3.SECITEM_FreeItem(ref decodedItem, 0);
+                        SECITEM_FreeItem(ref decodedItem, 0);
                     }
 
                 }
@@ -309,7 +305,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
             {
                 if (decodedObject != IntPtr.Zero)
                 {
-                    NSS3.SECITEM_FreeItem(decodedObject, 1);
+                    SECITEM_FreeItem(decodedObject, 1);
                 }
 
                 if (decodedItem.Data != IntPtr.Zero)
@@ -327,14 +323,14 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
         /// <returns>success status</returns>
         private static SECStatus Decode(string base64Data, ref string result)
         {
-            SECStatus status = SECStatus.Success;
-            SECItem decodedItem = new SECItem();
+            var status = SECStatus.Success;
+            var decodedItem = new SECItem();
             IntPtr decodedObject = IntPtr.Zero;
             result = string.Empty;
 
             try
             {
-                decodedObject = NSS3.NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, base64Data, base64Data.Length);
+                decodedObject = NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, base64Data, base64Data.Length);
 
                 if (decodedObject == IntPtr.Zero)
                 {
@@ -345,12 +341,11 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                     try
                     {
                         decodedItem = (SECItem)Marshal.PtrToStructure(decodedObject, typeof(SECItem));
-
                         result = Marshal.PtrToStringAnsi(decodedItem.Data, decodedItem.Length);
                     }
                     finally
                     {
-                        NSS3.SECITEM_FreeItem(decodedObject, 1);
+                        SECITEM_FreeItem(decodedObject, 1);
                     }
                 }
             }
@@ -362,9 +357,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
             finally
             {
                 if (decodedObject != IntPtr.Zero)
-                {
-                    NSS3.SECITEM_FreeItem(decodedObject, 1);
-                }
+                    SECITEM_FreeItem(decodedObject, 1);
 
                 if (decodedItem.Data != IntPtr.Zero)
                     Marshal.FreeHGlobal(decodedItem.Data);
@@ -377,31 +370,28 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
         {
             try
             {
-                IntPtr slot = NSS3.PK11_GetInternalKeySlot(); // get a slot to work with
+                IntPtr slot = PK11_GetInternalKeySlot(); // Gets a slot to work with.
 
                 if (slot == IntPtr.Zero)
-                    throw new Exception("Failed to get slot");
+                    throw new NsprException("Failed to get key slot.");
 
                 try
                 {
-                    SECStatus result = NSS3.PK11_CheckUserPassword(slot, password);
+                    SECStatus result = PK11_CheckUserPassword(slot, password);
                     return result;
                 }
                 finally
                 {
-                    NSS3.PK11_FreeSlot(slot);
+                    PK11_FreeSlot(slot);
                 }
             }
             finally
             {
-                if (NSS3.NSS_Shutdown() != SECStatus.Success)
-                {
-                    Int32 error = NSPR4.PR_GetError();
-                    string errorName = NSPR4.PR_ErrorToName(error);
-                    throw new Exception("Failed to shutdown: " + errorName);
-                }
+                if (NSS_Shutdown() != SECStatus.Success)
+                    throw new NsprException("Failed to shut down.");
             }
         }
+
         #endregion
     }
 }
