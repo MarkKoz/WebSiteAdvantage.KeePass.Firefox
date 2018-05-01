@@ -129,6 +129,7 @@
     <Compile Include="ErrorMessage.Designer.cs">
       <DependentUpon>ErrorMessage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="Logging\LoggerService.cs" />
     <Compile Include="FirefoxProfileInfo.cs" />
     <Compile Include="FirefoxSignon.cs" />

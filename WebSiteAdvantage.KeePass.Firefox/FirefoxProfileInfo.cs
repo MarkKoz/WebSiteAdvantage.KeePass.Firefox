@@ -26,7 +26,7 @@ using NLog;
 namespace WebSiteAdvantage.KeePass.Firefox
 {
     /// <summary>
-    /// data gathered from the profileIni file
+    /// Information on a profile parsed from a <c>profiles.ini</c> file.
     /// </summary>
     public class FirefoxProfileInfo
     {
@@ -45,7 +45,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <summary>
         /// Denotes if the profile's path is relative.
         /// </summary>
-        public bool IsRelative { get; set; } = true; // Not sure what the default should be.
+        public bool IsRelative { get; set; } = true;
 
         /// <summary>
         /// The path to the profile.
@@ -62,130 +62,145 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <summary>
         /// The full path which should be used as the ProfilePath when accessing the profile file.
         /// </summary>
-        public string AbsolutePath => IsRelative ? BasePath + "\\" + Path.Replace("/", "\\") : Path.Replace("/", "\\");
+        public string AbsolutePath => IsRelative ? System.IO.Path.Combine(BasePath, Path) : Path;
 
         #region Finding Profiles
+
+        /// <summary>
+        /// Possible paths to <c>profiles.ini</c> files.
+        /// </summary>
+        private static readonly string[] _IniPaths =
+        {
+            @"Mozilla\Firefox\profiles.ini",
+            @"Thunderbird\profiles.ini",
+            @"Mozilla\SeaMonkey\profiles.ini",
+            @"Mozilla\profiles.ini"
+        };
 
         /// <summary>
         /// Retrieves the first default profile if it exists. Otherwise,
         /// retrieves the first profile. Invalid profiles are excluded.
         /// </summary>
         /// <returns>The primary profile or <c>null</c> if none could be found.</returns>
-        public static FirefoxProfileInfo FindPrimaryProfile()
+        public static FirefoxProfileInfo GetPrimaryProfile()
         {
-            List<FirefoxProfileInfo> profiles = FindFirefoxProfileInfos();
-
-            return profiles.FirstOrDefault(p => p.Default && !string.IsNullOrEmpty(p.Path)) ??
-                   profiles.FirstOrDefault(p => !string.IsNullOrEmpty(p.Path));
-        }
-
-        /// <summary>
-        /// try and find the current users default profile
-        /// searches for firefox application data in:
-        /// LocalApplicationData
-        /// ApplicationData
-        /// CommonApplicationData
-        /// </summary>
-        /// <returns>full path to a profile</returns>
-        public static List<FirefoxProfileInfo> FindFirefoxProfileInfos()
-        {
-            List<FirefoxProfileInfo> profiles = new List<FirefoxProfileInfo>();
-
-            FindFirefoxProfileInfos(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), profiles);
-            FindFirefoxProfileInfos(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), profiles);
-            FindFirefoxProfileInfos(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), profiles);
-
-            return profiles;
-        }
-        public static void FindFirefoxProfileInfos(string applicationsPath, List<FirefoxProfileInfo> profiles)
-        {
-            FindFirefoxProfileInfos(applicationsPath, "\\Mozilla\\Firefox", profiles);
-            FindFirefoxProfileInfos(applicationsPath, "\\Thunderbird", profiles);
-            FindFirefoxProfileInfos(applicationsPath, "\\Mozilla\\SeaMonkey", profiles);
-            FindFirefoxProfileInfos(applicationsPath, "\\Mozilla", profiles);
-        }
-        /// <summary>
-        /// look for a default firefox profile in the supplied application data path
-        /// </summary>
-        /// <param name="applicationPath">a path to application data</param>
-        /// <returns>full path to a profile</returns>
-        public static void FindFirefoxProfileInfos(string applicationsPath, string applicationPath, List<FirefoxProfileInfo> profiles)
-        {
-            string basePath = applicationsPath + applicationPath; // firefoxes relative path
-            string profilesIni = basePath + "\\profiles.ini"; // file that contains data on the default profile
-
-            FindFirefoxProfileInfosFromIniFile(profilesIni, profiles);
-        }
-        public static void FindFirefoxProfileInfosFromIniFile(string profilesIni, List<FirefoxProfileInfo> profiles)
-        {
-
-            // searcvh the profile for a profile entry that contains "Default=1"
-            if (File.Exists(profilesIni))
+            try
             {
-                _Logger.Info("File exists at " + profilesIni);
+                IEnumerable<FirefoxProfileInfo> profiles = GetProfiles(GetProfilePaths()).SkipExceptions();
 
-                StreamReader reader = File.OpenText(profilesIni);
+                // It's fine to enumerate again if there's no default because it's quite unlikely there won't be a default.
+                // This way, for the far more common case of a default existing, it can take advantage of lazy evaluation.
+                return profiles.FirstOrDefault(p => p.Default && !string.IsNullOrEmpty(p.Path)) ?? profiles.FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                _Logger.Error(e, "Error reading a profile INI."); // Catching may be redundant, but just in case...
+            }
 
-                try
+            return null;
+        }
+
+        /// <summary>
+        /// Gets possible paths for <c>profiles.ini</c> files. This includes the application data folders.
+        /// </summary>
+        /// <returns>Possible paths for <c>profiles.ini</c> files.</returns>
+        public static IEnumerable<string> GetProfilePaths()
+        {
+            string[] basePaths =
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)
+            };
+
+            foreach (string basePath in basePaths)
+            {
+                foreach (string path in _IniPaths)
+                    yield return System.IO.Path.Combine(basePath, path);
+            }
+        }
+
+        /// <summary>
+        /// Parses <c>profiles.ini</c> files.
+        /// </summary>
+        /// <param name="paths">The paths of the files to parse.</param>
+        /// <returns>The parsed profiles.</returns>
+        public static IEnumerable<FirefoxProfileInfo> GetProfiles(IEnumerable<string> paths)
+        {
+            foreach (string path in paths)
+            {
+                if (!File.Exists(path))
                 {
-
-                    FirefoxProfileInfo profile = null;
-
-                    string line = reader.ReadLine();
-                    while (line != null)
-                    {
-                        string lowerLine = line.ToLower().Replace(" ", "");
-                        if (lowerLine.StartsWith("[")) // new section
-                        {
-                            if (lowerLine.StartsWith("[profile")) // new section
-                            {
-                                profile = new FirefoxProfileInfo();
-
-                                profile.Code = line.Trim().TrimStart('[').TrimEnd(']');
-
-                                profile.BasePath = profilesIni.Substring(0,profilesIni.LastIndexOf("\\"));
-
-                                profiles.Add(profile);
-                            }
-                            else
-                                profile = null;
-                        }
-
-                        if (profile != null)
-                        {
-                            if (lowerLine.StartsWith("name=")) // this is the default profile
-                                profile.Name = line.Substring(5);
-
-                            if (lowerLine.StartsWith("path=")) // this is the default profile
-                                profile.Path = line.Substring(5);
-
-                            if (lowerLine == "default=1") // this is the default profile
-                                profile.Default = true;
-
-                            if (lowerLine == "isrelative=1") // this is the default profile
-                                profile.IsRelative = true;
-
-                            if (lowerLine == "isrelative=0") // this is the default profile
-                                profile.IsRelative = false;
-                        }
-
-                        line = reader.ReadLine();
-                    }
+                    _Logger.Debug("File does not exist at " + path);
+                    continue;
                 }
-                finally
+
+                _Logger.Info("File exists at " + path);
+
+                using (StreamReader reader = File.OpenText(path))
                 {
-                    reader.Close();
+                    FirefoxProfileInfo profile = null;
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        FirefoxProfileInfo previous = profile;
+
+                        if (ParseLine(line, path, ref profile) && previous != null)
+                            yield return previous;
+                    }
+
+                    // Finished reading the file. Yields the final profile if it exists.
+                    if (profile != null)
+                        yield return profile;
                 }
             }
-            else
-                _Logger.Debug("File does not exist at " + profilesIni);
         }
+
+        /// <summary>
+        /// Parses a line of a <c>profiles.ini</c> file.
+        /// </summary>
+        /// <param name="line">The line to parse.</param>
+        /// <param name="path">The path to the <c>profiles.ini</c> file.</param>
+        /// <param name="profile">The profile currently being parsed.</param>
+        /// <returns><c>true</c> if on a new profile; <c>false</c> otherwise.</returns>
+        private static bool ParseLine(string line, string path, ref FirefoxProfileInfo profile)
+        {
+            if (line.StartsWith("[profile", StringComparison.OrdinalIgnoreCase))
+            {
+                profile = new FirefoxProfileInfo
+                {
+                    Code = line.Trim().TrimStart('[').TrimEnd(']'),
+                    BasePath = System.IO.Path.GetDirectoryName(path)
+                };
+
+                return true;
+            }
+
+            if (profile != null)
+            {
+                if (line.StartsWith("name=", StringComparison.OrdinalIgnoreCase))
+                    profile.Name = line.Substring(5);
+
+                // TODO: Handle paths with spaces? Are they within quotes?
+                if (line.StartsWith("path=", StringComparison.OrdinalIgnoreCase))
+                    profile.Path = line.Substring(5);
+
+                if (line.Equals("default=1", StringComparison.OrdinalIgnoreCase))
+                    profile.Default = true;
+
+                if (line.Equals("isrelative=0", StringComparison.OrdinalIgnoreCase))
+                    profile.IsRelative = false;
+            }
+
+            return false;
+        }
+
         #endregion
 
         public override string ToString()
         {
-            return this.Name;
+            return Name;
         }
-
     }
 }

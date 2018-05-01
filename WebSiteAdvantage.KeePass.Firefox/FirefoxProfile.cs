@@ -53,7 +53,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         {
             // find it!
 
-            FirefoxProfileInfo profile = FirefoxProfileInfo.FindPrimaryProfile();
+            FirefoxProfileInfo profile = FirefoxProfileInfo.GetPrimaryProfile();
 
 
             if (profile == null)
