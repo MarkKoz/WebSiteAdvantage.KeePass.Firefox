@@ -26,6 +26,16 @@ namespace WebSiteAdvantage.KeePass.Firefox
     public class FirefoxSignon
     {
         /// <summary>
+        /// The URL of the website the sign on is for.
+        /// </summary>
+        public string Hostname { get; set; }
+
+        /// <summary>
+        /// The sign on's HTTP realm. Used by HTTP-authenticated sign ons.
+        /// </summary>
+        public string HttpRealm { get; set; }
+
+        /// <summary>
         /// The name of HTML user name field or blank for HTTP authentication.
         /// </summary>
         public string UserNameField { get; set; }
@@ -48,25 +58,25 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <summary>
         /// The login form's domain.
         /// </summary>
-        public string LoginFormDomain { get; set; }
+        public string FormSubmitUrl { get; set; }
 
         /// <summary>
-        /// When the entry was created.
+        /// When the sign on was created.
         /// </summary>
         public DateTimeOffset? TimeCreated { get; set; }
 
         /// <summary>
-        /// When the entry was last used.
+        /// When the sign on was last used.
         /// </summary>
         public DateTimeOffset? TimeLastUsed { get; set; }
 
         /// <summary>
-        /// When the entry was last modified.
+        /// When the sign on was last modified.
         /// </summary>
         public DateTimeOffset? TimePasswordChanged { get; set; }
 
         /// <summary>
-        /// Amount of times the entry was used.
+        /// Amount of times sign on was used.
         /// </summary>
         public ulong TimesUsed { get; set; }
     }

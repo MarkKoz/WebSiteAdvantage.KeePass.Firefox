@@ -10,7 +10,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
     /// <summary>
     /// Parses <c>profiles.ini</c> files.
     /// </summary>
-    public static class FirefoxProfileParser
+    internal static class FirefoxProfileParser
     {
         private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
 
@@ -64,7 +64,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
             foreach (string basePath in basePaths)
             {
                 foreach (string path in _IniPaths)
-                    yield return System.IO.Path.Combine(basePath, path);
+                    yield return Path.Combine(basePath, path);
             }
         }
 
@@ -119,7 +119,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
                 profile = new FirefoxProfileInfo
                 {
                     Code = line.Trim().TrimStart('[').TrimEnd(']'),
-                    BasePath = System.IO.Path.GetDirectoryName(path)
+                    BasePath = Path.GetDirectoryName(path)
                 };
 
                 return true;

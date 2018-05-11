@@ -17,7 +17,10 @@
  */
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.IO;
+
+using NLog;
 
 using WebSiteAdvantage.KeePass.Firefox.Gecko;
 
@@ -28,6 +31,8 @@ namespace WebSiteAdvantage.KeePass.Firefox
     /// </summary>
     public class FirefoxProfile : IDisposable
     {
+        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
+
         #region Constructors
 
         /// <summary>
@@ -38,7 +43,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <exception cref="ArgumentException">Thrown when the profile cannot be initialised or the password is invalid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="profileInfo"/> is <c>null</c>.</exception>
         /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        public FirefoxProfile(FirefoxProfileInfo profileInfo, string password) : this(profileInfo?.AbsolutePath, password)
+        internal FirefoxProfile(FirefoxProfileInfo profileInfo, string password = "") : this(profileInfo?.AbsolutePath, password)
         {
             Info = profileInfo;
         }
@@ -51,7 +56,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <exception cref="ArgumentException">Thrown when the profile cannot be initialised or the password is invalid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="profilePath"/> is <c>null</c>.</exception>
         /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        public FirefoxProfile(string profilePath, string password)
+        public FirefoxProfile(string profilePath, string password = "")
         {
             Path = profilePath ?? throw new ArgumentNullException(nameof(profilePath), "Could not find a profile.");
 
@@ -66,7 +71,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <exception cref="ArgumentException">Thrown when the password is invalid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when no profile can be found.</exception>
         /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        public FirefoxProfile(string password) : this(FirefoxProfileParser.GetPrimaryProfile(), password) { }
+        public FirefoxProfile(string password = "") : this(FirefoxProfileParser.GetPrimaryProfile(), password) { }
 
         #endregion
 
@@ -104,29 +109,35 @@ namespace WebSiteAdvantage.KeePass.Firefox
             }
         }
 
+        /// <summary>
+        /// Reads and parses the profile's sign ons.
+        /// </summary>
+        /// <exception cref="FileNotFoundException">Thrown when no sign on file can be found for the profile.</exception>
+        /// <returns>The parsed sign ons.</returns>
+        public IEnumerable<FirefoxSignon> GetSignons()
+        {
+            string pathJson = System.IO.Path.Combine(Path, "logins.json");
+            string pathDb = System.IO.Path.Combine(Path, "signons.sqlite");
+
+            if (File.Exists(pathJson))
+                return FirefoxSignonsFile.ParseJson(Path);
+
+            _Logger.Info("logins.json could not be found. Falling back to signons.sqlite.");
+
+            if (File.Exists(pathDb))
+                return FirefoxSignonsFile.ParseDatabase(Path);
+
+            throw new FileNotFoundException("No sign on file could be found.", "signons.sqlite");
+        }
+
         #region Profile Data
 
         private IntPtr _Slot;
-        private FirefoxSignonsFile _SignonsFile;
-        private FirefoxProfileInfo _Info;
 
         /// <summary>
-        /// The profile's information.
+        /// The profile's information. <c>null</c> if <see cref="FirefoxProfile(string, string)"/> is used.
         /// </summary>
-        public FirefoxProfileInfo Info
-        {
-            // Parses the profiles.ini. Needed when the path constructor is used.
-            get => _Info ?? (_Info = FirefoxProfileParser
-                       .GetProfiles(new[] { System.IO.Path.Combine(Path, "profiles.ini") }).FirstOrDefault());
-
-            private set => _Info = value;
-        }
-
-        /// <summary>
-        /// Retrieves the profile's signon file.
-        /// </summary>
-        /// <returns>The profile's signon file.</returns>
-        public FirefoxSignonsFile SignonsFile => _SignonsFile ?? (_SignonsFile = new FirefoxSignonsFile(Path));
+        public FirefoxProfileInfo Info { get; }
 
         /// <summary>
         /// The profile's absolute path.

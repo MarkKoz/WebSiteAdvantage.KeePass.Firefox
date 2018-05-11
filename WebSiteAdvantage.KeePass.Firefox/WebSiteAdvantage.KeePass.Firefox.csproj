@@ -134,7 +134,6 @@
     <Compile Include="Logging\LoggerService.cs" />
     <Compile Include="FirefoxProfileInfo.cs" />
     <Compile Include="FirefoxSignon.cs" />
-    <Compile Include="FirefoxSignonSite.cs" />
     <Compile Include="FirefoxSignonsFile.cs" />
     <Compile Include="Logging\LayoutRenderers\PrettyExceptionLayoutRenderer.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
