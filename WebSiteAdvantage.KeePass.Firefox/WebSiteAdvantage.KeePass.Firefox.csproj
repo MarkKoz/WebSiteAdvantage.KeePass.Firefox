@@ -159,97 +159,97 @@
     <Compile Include="Utilities\WebScraper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Nss\NSS312\freebl3.dll">
+    <Content Include="Nss\x86\freebl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\js3250.dll">
+    <Content Include="Nss\x86\js3250.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\mozcrt19.dll">
+    <Content Include="Nss\x86\mozcrt19.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\nspr4.dll">
+    <Content Include="Nss\x86\nspr4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\nss3.dll">
+    <Content Include="Nss\x86\nss3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\nssckbi.dll">
+    <Content Include="Nss\x86\nssckbi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\nssdbm3.dll">
+    <Content Include="Nss\x86\nssdbm3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\nssutil3.dll">
+    <Content Include="Nss\x86\nssutil3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\plc4.dll">
+    <Content Include="Nss\x86\plc4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\plds4.dll">
+    <Content Include="Nss\x86\plds4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\smime3.dll">
+    <Content Include="Nss\x86\smime3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\softokn3.dll">
+    <Content Include="Nss\x86\softokn3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\sqlite3.dll">
+    <Content Include="Nss\x86\sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\ssl3.dll">
+    <Content Include="Nss\x86\ssl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS312\xpcom.dll">
+    <Content Include="Nss\x86\xpcom.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\freebl3.dll">
+    <Content Include="Nss\x64\freebl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\js6450.dll">
+    <Content Include="Nss\x64\js6450.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\mozcrt19.dll">
+    <Content Include="Nss\x64\mozcrt19.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\nspr4.dll">
+    <Content Include="Nss\x64\nspr4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\nss3.dll">
+    <Content Include="Nss\x64\nss3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\nssckbi.dll">
+    <Content Include="Nss\x64\nssckbi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\nssdbm3.dll">
+    <Content Include="Nss\x64\nssdbm3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\nssutil3.dll">
+    <Content Include="Nss\x64\nssutil3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\plc4.dll">
+    <Content Include="Nss\x64\plc4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\plds4.dll">
+    <Content Include="Nss\x64\plds4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\README.txt">
+    <Content Include="Nss\x64\README.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\smime3.dll">
+    <Content Include="Nss\x64\smime3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\softokn3.dll">
+    <Content Include="Nss\x64\softokn3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\sqlite3.dll">
+    <Content Include="Nss\x64\sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\ssl3.dll">
+    <Content Include="Nss\x64\ssl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Nss\NSS64\xpcom.dll">
+    <Content Include="Nss\x64\xpcom.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
