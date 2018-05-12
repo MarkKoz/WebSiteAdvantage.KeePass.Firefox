@@ -163,7 +163,6 @@
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\SECStatus.cs" />
     <Compile Include="InternetAccessor.cs" />
     <Compile Include="FirefoxProfile.cs" />
-    <Compile Include="KeePassUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
