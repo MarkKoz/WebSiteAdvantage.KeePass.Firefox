@@ -10,12 +10,17 @@ using NLog.LayoutRenderers;
 namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
 {
     [LayoutRenderer("pretty-exception")]
-    public class PrettyExceptionLayoutRenderer : LayoutRenderer
+    internal class PrettyExceptionLayoutRenderer : LayoutRenderer
     {
         /// <summary>
-        /// A line's indentation. Nested lines (e.g. those of a stack trace) double this value.
+        /// A line's indentation.
         /// </summary>
         public string Indent { get; set; } = new string(' ', 4);
+
+        /// <summary>
+        /// A nested line's indentation.
+        /// </summary>
+        public string NestedIndent { get; set; } = new string(' ', 4);
 
         /// <summary>
         /// Denotes if the exceptions' full type should be used.
@@ -52,27 +57,41 @@ namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
         /// </summary>
         public string InnerSeperator { get; set; } = string.Empty;
 
+        /// <summary>
+        /// The newline character to use.
+        /// </summary>
+        public string NewLine { get; set; } = "\n";
+
         /// <inheritdoc />
         protected override void Append(StringBuilder builder, LogEventInfo logEvent)
         {
+            Append(builder, logEvent.Exception);
+        }
+
+        /// <summary>
+        /// Renders an <see cref="Exception"/> and appends it to the specified <see cref="T:System.Text.StringBuilder"/>.
+        /// </summary>
+        /// <param name="builder">The <see cref="T:System.Text.StringBuilder"/> to append the rendered data to.</param>
+        /// <param name="exception">The exception to render.</param>
+        public void Append(StringBuilder builder, Exception exception)
+        {
             int loggedInner = 0;
-            Exception eTop = logEvent.Exception;
-            Exception e = eTop;
+            Exception e = exception;
 
             while (e != null)
             {
-                if (e != eTop)
+                if (e != exception)
                 {
                     ++loggedInner;
                     builder.Append(InnerSeperator);
                 }
 
                 string type = FullTypeName ? e.GetType().FullName : e.GetType().Name;
-                builder.AppendFormat("{0}{1}{2}{3}{4}\n", Indent, BeforeType, type, AfterType, FormatMessage(e.Message));
+                builder.AppendFormat("{0}{1}{2}{3}{4}{5}", Indent, BeforeType, type, AfterType, FormatMessage(e.Message), NewLine);
 
-                if ((e == eTop && LogStack) || (e != eTop && LogInnerStacks))
+                if ((e == exception && LogStack) || (e != exception && LogInnerStacks))
                     foreach (string line in ReadLines(e.StackTrace))
-                        builder.AppendFormat("{0}{0}{1}\n", Indent, line);
+                        builder.AppendFormat("{0}{1}{2}{3}", Indent, NestedIndent, line, NewLine);
 
                 // Moves on to the inner exception if the limit hasn't been reached.
                 e = loggedInner < MaxInnerExceptions ? e.InnerException : null;
@@ -94,10 +113,10 @@ namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
                 return message;
 
             // First line should not be indented because it will be on the same line as the exception's type.
-            var builder = new StringBuilder(lines.First() + '\n', lines.Length);
+            var builder = new StringBuilder(lines.First() + NewLine, lines.Length);
 
             foreach (string line in lines.Skip(1))
-                builder.AppendFormat("{0}{1}\n", Indent, line);
+                builder.AppendFormat("{0}{1}{2}", Indent, line, NewLine);
 
             RemoveFinalNewline(ref builder);
 
@@ -124,10 +143,10 @@ namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
         /// If it exists, removes the final newline character from a <see cref="StringBuilder"/>.
         /// </summary>
         /// <param name="builder">The string builder from which to remove the final newline.</param>
-        private static void RemoveFinalNewline(ref StringBuilder builder)
+        private void RemoveFinalNewline(ref StringBuilder builder)
         {
-            if (builder.Length != 0 && builder[builder.Length - 1] == '\n')
-                --builder.Length;
+            if (builder.Length != 0 && builder.ToString(builder.Length - NewLine.Length, NewLine.Length) == NewLine)
+                builder.Length -= NewLine.Length;
         }
     }
 }
