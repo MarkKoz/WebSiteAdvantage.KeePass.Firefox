@@ -99,7 +99,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Nss.Native
         /// <param name="zap">The <see cref="SecItem"/> to free.</param>
         /// <param name="freeit"></param>
         [DllImport("nss3.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void SECITEM_FreeItem(ref SecItem zap, [MarshalAs(UnmanagedType.SysInt)] bool freeit);
+        public static extern void SECITEM_FreeItem(ref SecItem zap, [MarshalAs(UnmanagedType.I1)] bool freeit);
 
         /// <summary>
         /// Free <paramref name="zap"/>. If <paramref name="freeit"/> is <c>true</c> then <paramref name="zap"/> itself is freed.
@@ -107,6 +107,6 @@ namespace WebSiteAdvantage.KeePass.Firefox.Nss.Native
         /// <param name="zap">Pointer to the <see cref="SecItem"/> to free.</param>
         /// <param name="freeit"></param>
         [DllImport("nss3.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void SECITEM_FreeItem(IntPtr zap, [MarshalAs(UnmanagedType.SysInt)] bool freeit);
+        public static extern void SECITEM_FreeItem(IntPtr zap, [MarshalAs(UnmanagedType.I1)] bool freeit);
     }
 }
