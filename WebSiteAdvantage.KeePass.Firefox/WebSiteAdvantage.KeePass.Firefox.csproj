@@ -154,12 +154,10 @@
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSPR4.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\NSPR4.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\NSS3.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\PLC4.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS3.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\NSPR4.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\NSS3.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\PLC4.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\PLC4.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\SECItem.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\SECItemType.cs" />
     <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\SECStatus.cs" />

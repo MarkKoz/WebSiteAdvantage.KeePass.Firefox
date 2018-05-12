@@ -366,32 +366,6 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
             return status;
         }
 
-        public static SECStatus CheckUserPassword(string password)
-        {
-            try
-            {
-                IntPtr slot = PK11_GetInternalKeySlot(); // Gets a slot to work with.
-
-                if (slot == IntPtr.Zero)
-                    throw new NsprException("Failed to get key slot.");
-
-                try
-                {
-                    SECStatus result = PK11_CheckUserPassword(slot, password);
-                    return result;
-                }
-                finally
-                {
-                    PK11_FreeSlot(slot);
-                }
-            }
-            finally
-            {
-                if (NSS_Shutdown() != SECStatus.Success)
-                    throw new NsprException("Failed to shut down.");
-            }
-        }
-
         #endregion
     }
 }
