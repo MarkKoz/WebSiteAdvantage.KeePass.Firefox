@@ -24,29 +24,28 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using NLog;
-
+using WebSiteAdvantage.KeePass.Firefox.Extensions;
 using WebSiteAdvantage.KeePass.Firefox.Gecko;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Signons
 {
     /// <summary>
     /// Parses Firefox sign on files. Supports <c>logins.json</c> and <c>signons.sqlite</c>.
     /// </summary>
-    internal static class FirefoxSignonsFile
+    internal static class SignonParser
     {
         /// <summary>
         /// Reads and parses sign ons from the <c>logins.json</c> file.
         /// </summary>
         /// <param name="path">The absolute path to the <c>logins.json</c> file.</param>
         /// <returns>The parsed sign ons.</returns>
-        public static IEnumerable<FirefoxSignon> ParseJson(string path)
+        public static IEnumerable<Signon> ParseJson(string path)
         {
             JObject responseJson = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(path));
 
             foreach (JObject login in responseJson["logins"])
             {
-                yield return new FirefoxSignon
+                yield return new Signon
                 {
                     Hostname = login["hostname"].ToString(),
                     HttpRealm = login["httpRealm"].ToString(),
@@ -68,7 +67,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// </summary>
         /// <param name="path">The absolute path to the <c>signons.sqlite</c> file.</param>
         /// <returns>The parsed sign ons.</returns>
-        public static IEnumerable<FirefoxSignon> ParseDatabase(string path)
+        public static IEnumerable<Signon> ParseDatabase(string path)
         {
             var connectionBuilder = new SQLiteConnectionStringBuilder
             {
@@ -101,7 +100,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
             {
                 while (reader.Read())
                 {
-                    yield return new FirefoxSignon
+                    yield return new Signon
                     {
                         Hostname = reader.GetString("hostname"),
                         HttpRealm = reader.GetString("httpRealm"),

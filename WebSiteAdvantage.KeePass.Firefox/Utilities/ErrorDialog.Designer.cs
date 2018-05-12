@@ -1,6 +1,6 @@
-﻿namespace WebSiteAdvantage.KeePass.Firefox
+﻿namespace WebSiteAdvantage.KeePass.Firefox.Utilities
 {
-    partial class ErrorMessage
+    partial class ErrorDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ErrorMessage));
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.labelMessage = new System.Windows.Forms.Label();
             this.labelLog = new System.Windows.Forms.Label();
@@ -38,11 +37,11 @@
             this.labelTroubleshooting = new System.Windows.Forms.Label();
             this.linkTroubleshooting = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
-            //
+            // 
             // textBoxLog
-            //
-            this.textBoxLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.textBoxLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxLog.BackColor = System.Drawing.SystemColors.Window;
             this.textBoxLog.Location = new System.Drawing.Point(12, 114);
@@ -53,27 +52,27 @@
             this.textBoxLog.Size = new System.Drawing.Size(522, 233);
             this.textBoxLog.TabIndex = 0;
             this.textBoxLog.WordWrap = false;
-            //
+            // 
             // labelMessage
-            //
+            // 
             this.labelMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelMessage.Location = new System.Drawing.Point(12, 19);
             this.labelMessage.Name = "labelMessage";
             this.labelMessage.Size = new System.Drawing.Size(522, 34);
             this.labelMessage.TabIndex = 1;
             this.labelMessage.Text = "Something Went Wrong";
-            //
+            // 
             // labelLog
-            //
+            // 
             this.labelLog.AutoSize = true;
             this.labelLog.Location = new System.Drawing.Point(9, 98);
             this.labelLog.Name = "labelLog";
             this.labelLog.Size = new System.Drawing.Size(317, 13);
             this.labelLog.TabIndex = 2;
             this.labelLog.Text = "When reporting this error please copy and include the data below.";
-            //
+            // 
             // buttonClose
-            //
+            // 
             this.buttonClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonClose.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.buttonClose.Location = new System.Drawing.Point(459, 353);
@@ -82,9 +81,9 @@
             this.buttonClose.TabIndex = 3;
             this.buttonClose.Text = "Close";
             this.buttonClose.UseVisualStyleBackColor = true;
-            //
+            // 
             // linkEmail
-            //
+            // 
             this.linkEmail.AutoSize = true;
             this.linkEmail.Location = new System.Drawing.Point(228, 75);
             this.linkEmail.Name = "linkEmail";
@@ -93,27 +92,27 @@
             this.linkEmail.TabStop = true;
             this.linkEmail.Text = "tony@websiteadvantage.com.au";
             this.linkEmail.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.EmailClickedEventHandler);
-            //
+            // 
             // labelEmail
-            //
+            // 
             this.labelEmail.AutoSize = true;
             this.labelEmail.Location = new System.Drawing.Point(9, 75);
             this.labelEmail.Name = "labelEmail";
             this.labelEmail.Size = new System.Drawing.Size(222, 13);
             this.labelEmail.TabIndex = 5;
             this.labelEmail.Text = "If that does not help then send error reports to";
-            //
+            // 
             // labelTroubleshooting
-            //
+            // 
             this.labelTroubleshooting.AutoSize = true;
             this.labelTroubleshooting.Location = new System.Drawing.Point(9, 53);
             this.labelTroubleshooting.Name = "labelTroubleshooting";
             this.labelTroubleshooting.Size = new System.Drawing.Size(109, 13);
             this.labelTroubleshooting.TabIndex = 6;
             this.labelTroubleshooting.Text = "Please first check the";
-            //
+            // 
             // linkTroubleshooting
-            //
+            // 
             this.linkTroubleshooting.AutoSize = true;
             this.linkTroubleshooting.Location = new System.Drawing.Point(113, 53);
             this.linkTroubleshooting.Name = "linkTroubleshooting";
@@ -122,9 +121,9 @@
             this.linkTroubleshooting.TabStop = true;
             this.linkTroubleshooting.Text = "trouble shooting section.";
             this.linkTroubleshooting.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.TroubleshootingClickedEventHandler);
-            //
-            // ErrorMessage
-            //
+            // 
+            // ErrorDialog
+            // 
             this.AcceptButton = this.buttonClose;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -140,7 +139,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ErrorMessage";
+            this.Name = "ErrorDialog";
             this.Text = "Error";
             this.TopMost = true;
             this.ResumeLayout(false);

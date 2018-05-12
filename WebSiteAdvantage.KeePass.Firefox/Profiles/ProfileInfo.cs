@@ -16,12 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 {
     /// <summary>
     /// Information on a profile parsed from a <c>profiles.ini</c> file.
     /// </summary>
-    public class FirefoxProfileInfo
+    public class ProfileInfo
     {
         /// <summary>
         /// String from the header part of a profile definition. In []

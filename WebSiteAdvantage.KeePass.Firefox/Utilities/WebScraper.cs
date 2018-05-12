@@ -27,17 +27,17 @@ using HtmlAgilityPack;
 
 using NLog;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Utilities
 {
     /// <summary>
     /// Utilities for scraping information from the internet.
     /// </summary>
-    public static class InternetAccessor
+    public static class WebScraper
     {
         private static readonly HttpClient _HttpClient = new HttpClient();
         private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
 
-        static InternetAccessor()
+        static WebScraper()
         {
             // ServicePointManager.MaxServicePointIdleTime =
             // ServicePointManager.MaxServicePoints =

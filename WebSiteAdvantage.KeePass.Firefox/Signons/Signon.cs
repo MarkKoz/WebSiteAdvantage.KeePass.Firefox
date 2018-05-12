@@ -18,12 +18,12 @@
 
 using System;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Signons
 {
     /// <summary>
     /// Saved sign on information from Firefox's signon file.
     /// </summary>
-    public class FirefoxSignon
+    public class Signon
     {
         /// <summary>
         /// The URL of the website the sign on is for.

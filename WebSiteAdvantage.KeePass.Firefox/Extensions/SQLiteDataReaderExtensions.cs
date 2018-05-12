@@ -1,7 +1,10 @@
 ﻿using System.Data.SQLite;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Extensions
 {
+    /// <summary>
+    /// Contains extension methods for <see cref="SQLiteDataReader"/>.
+    /// </summary>
     public static class SQLiteDataReaderExtensions
     {
         public static string GetString(this SQLiteDataReader reader, string column)

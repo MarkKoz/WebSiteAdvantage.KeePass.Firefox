@@ -5,12 +5,14 @@ using System.Linq;
 
 using NLog;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+using WebSiteAdvantage.KeePass.Firefox.Extensions;
+
+namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 {
     /// <summary>
     /// Parses <c>profiles.ini</c> files.
     /// </summary>
-    internal static class FirefoxProfileParser
+    internal static class ProfileParser
     {
         private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
 
@@ -30,11 +32,11 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// retrieves the first profile. Invalid profiles are excluded.
         /// </summary>
         /// <returns>The primary profile or <c>null</c> if none could be found.</returns>
-        public static FirefoxProfileInfo GetPrimaryProfile()
+        public static ProfileInfo GetPrimaryProfile()
         {
             try
             {
-                IEnumerable<FirefoxProfileInfo> profiles = GetProfiles(GetProfilePaths()).SkipExceptions();
+                IEnumerable<ProfileInfo> profiles = GetProfiles(GetProfilePaths()).SkipExceptions();
 
                 // It's fine to enumerate again if there's no default because it's quite unlikely there won't be a default.
                 // This way, for the far more common case of a default existing, it can take advantage of lazy evaluation.
@@ -73,7 +75,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// </summary>
         /// <param name="paths">The paths of the files to parse.</param>
         /// <returns>The parsed profiles.</returns>
-        public static IEnumerable<FirefoxProfileInfo> GetProfiles(IEnumerable<string> paths)
+        public static IEnumerable<ProfileInfo> GetProfiles(IEnumerable<string> paths)
         {
             foreach (string path in paths)
             {
@@ -87,12 +89,12 @@ namespace WebSiteAdvantage.KeePass.Firefox
 
                 using (StreamReader reader = File.OpenText(path))
                 {
-                    FirefoxProfileInfo profile = null;
+                    ProfileInfo profile = null;
                     string line;
 
                     while ((line = reader.ReadLine()) != null)
                     {
-                        FirefoxProfileInfo previous = profile;
+                        ProfileInfo previous = profile;
 
                         if (ParseLine(line, path, ref profile) && previous != null)
                             yield return previous;
@@ -112,11 +114,11 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <param name="path">The path to the <c>profiles.ini</c> file.</param>
         /// <param name="profile">The profile currently being parsed.</param>
         /// <returns><c>true</c> if on a new profile; <c>false</c> otherwise.</returns>
-        private static bool ParseLine(string line, string path, ref FirefoxProfileInfo profile)
+        private static bool ParseLine(string line, string path, ref ProfileInfo profile)
         {
             if (line.StartsWith("[profile", StringComparison.OrdinalIgnoreCase))
             {
-                profile = new FirefoxProfileInfo
+                profile = new ProfileInfo
                 {
                     Code = line.Trim().TrimStart('[').TrimEnd(']'),
                     BasePath = Path.GetDirectoryName(path)

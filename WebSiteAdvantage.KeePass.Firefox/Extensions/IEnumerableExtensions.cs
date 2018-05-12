@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Extensions
 {
     /// <summary>
-    /// Extension methods for various types.
+    /// Contains extension methods for <see cref="IEnumerable{T}"/>.
     /// </summary>
-    public static class Extensions
+    public static class IEnumerableExtensions
     {
         /// <summary>
         /// Skips all elements of a sequence that throw an exception upon retrieval.

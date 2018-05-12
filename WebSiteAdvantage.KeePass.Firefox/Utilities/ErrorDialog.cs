@@ -25,17 +25,17 @@ using System.Windows.Forms;
 
 using WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Utilities
 {
     /// <summary>
     /// A form which displays errors in a user-friendly manner.
     /// </summary>
-    public partial class ErrorMessage : Form
+    public partial class ErrorDialog : Form
     {
         private static readonly PrettyExceptionLayoutRenderer _Renderer =
             new PrettyExceptionLayoutRenderer { Indent = string.Empty, NewLine = Environment.NewLine };
 
-        internal ErrorMessage()
+        internal ErrorDialog()
         {
             InitializeComponent();
             Icon = SystemIcons.Error;
@@ -66,7 +66,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <param name="exception">The exception caught.</param>
         public static void Show(string message, Exception exception)
         {
-            var dialog = new ErrorMessage { Message = message };
+            var dialog = new ErrorDialog { Message = message };
             var sb = new StringBuilder();
             AssemblyName assembly = Assembly.GetCallingAssembly().GetName();
 

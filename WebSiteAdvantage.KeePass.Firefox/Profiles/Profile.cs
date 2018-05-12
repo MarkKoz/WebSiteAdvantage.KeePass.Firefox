@@ -23,27 +23,28 @@ using System.IO;
 using NLog;
 
 using WebSiteAdvantage.KeePass.Firefox.Gecko;
+using WebSiteAdvantage.KeePass.Firefox.Signons;
 
-namespace WebSiteAdvantage.KeePass.Firefox
+namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 {
     /// <summary>
     /// Represents a Firefox user profile.
     /// </summary>
-    public class FirefoxProfile : IDisposable
+    public class Profile : IDisposable
     {
         private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
 
         #region Constructors
 
         /// <summary>
-        /// Constructs a profile from the given <see cref="FirefoxProfileInfo"/>.
+        /// Constructs a profile from the given <see cref="ProfileInfo"/>.
         /// </summary>
-        /// <param name="profileInfo">The <see cref="FirefoxProfileInfo"/> from which to construct a profile.</param>
+        /// <param name="profileInfo">The <see cref="ProfileInfo"/> from which to construct a profile.</param>
         /// <param name="password">The profile's master password.</param>
         /// <exception cref="ArgumentException">Thrown when the profile cannot be initialised or the password is invalid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="profileInfo"/> is <c>null</c>.</exception>
         /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        internal FirefoxProfile(FirefoxProfileInfo profileInfo, string password = "") : this(profileInfo?.AbsolutePath, password)
+        internal Profile(ProfileInfo profileInfo, string password = "") : this(profileInfo?.AbsolutePath, password)
         {
             Info = profileInfo;
         }
@@ -56,7 +57,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <exception cref="ArgumentException">Thrown when the profile cannot be initialised or the password is invalid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="profilePath"/> is <c>null</c>.</exception>
         /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        public FirefoxProfile(string profilePath, string password = "")
+        public Profile(string profilePath, string password = "")
         {
             Path = profilePath ?? throw new ArgumentNullException(nameof(profilePath), "Could not find a profile.");
 
@@ -71,7 +72,7 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// <exception cref="ArgumentException">Thrown when the password is invalid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when no profile can be found.</exception>
         /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        public FirefoxProfile(string password = "") : this(FirefoxProfileParser.GetPrimaryProfile(), password) { }
+        public Profile(string password = "") : this(ProfileParser.GetPrimaryProfile(), password) { }
 
         #endregion
 
@@ -114,18 +115,18 @@ namespace WebSiteAdvantage.KeePass.Firefox
         /// </summary>
         /// <exception cref="FileNotFoundException">Thrown when no sign on file can be found for the profile.</exception>
         /// <returns>The parsed sign ons.</returns>
-        public IEnumerable<FirefoxSignon> GetSignons()
+        public IEnumerable<Signon> GetSignons()
         {
             string pathJson = System.IO.Path.Combine(Path, "logins.json");
             string pathDb = System.IO.Path.Combine(Path, "signons.sqlite");
 
             if (File.Exists(pathJson))
-                return FirefoxSignonsFile.ParseJson(Path);
+                return SignonParser.ParseJson(Path);
 
             _Logger.Info("logins.json could not be found. Falling back to signons.sqlite.");
 
             if (File.Exists(pathDb))
-                return FirefoxSignonsFile.ParseDatabase(Path);
+                return SignonParser.ParseDatabase(Path);
 
             throw new FileNotFoundException("No sign on file could be found.", "signons.sqlite");
         }
@@ -135,9 +136,9 @@ namespace WebSiteAdvantage.KeePass.Firefox
         private IntPtr _Slot;
 
         /// <summary>
-        /// The profile's information. <c>null</c> if <see cref="FirefoxProfile(string, string)"/> is used.
+        /// The profile's information. <c>null</c> if <see cref="Profile(string,string)"/> is used.
         /// </summary>
-        public FirefoxProfileInfo Info { get; }
+        public ProfileInfo Info { get; }
 
         /// <summary>
         /// The profile's absolute path.
