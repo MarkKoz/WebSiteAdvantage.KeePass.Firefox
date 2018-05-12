@@ -89,7 +89,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
                 string type = FullTypeName ? e.GetType().FullName : e.GetType().Name;
                 builder.AppendFormat("{0}{1}{2}{3}{4}{5}", Indent, BeforeType, type, AfterType, FormatMessage(e.Message), NewLine);
 
-                if ((e == exception && LogStack) || (e != exception && LogInnerStacks))
+                if (e.StackTrace != null && ((e == exception && LogStack) || (e != exception && LogInnerStacks)))
                     foreach (string line in ReadLines(e.StackTrace))
                         builder.AppendFormat("{0}{1}{2}{3}", Indent, NestedIndent, line, NewLine);
 
@@ -107,6 +107,9 @@ namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
         /// <returns>The formatted message.</returns>
         private string FormatMessage(string message)
         {
+            if (message == null)
+                return string.Empty;
+
             string[] lines = ReadLines(message).ToArray();
 
             if (lines.Length < 2)
