@@ -130,6 +130,17 @@
     <Compile Include="Extensions\SQLiteDataReaderExtensions.cs" />
     <Compile Include="Logging\LayoutRenderers\PrettyExceptionLayoutRenderer.cs" />
     <Compile Include="Logging\LoggerService.cs" />
+    <Compile Include="Nss\NSS64\NSPR4.cs" />
+    <Compile Include="Nss\NSS64\NSS3.cs" />
+    <Compile Include="Nss\NSS312\NSPR4.cs" />
+    <Compile Include="Nss\NSS312\NSS3.cs" />
+    <Compile Include="Nss\NSS312\PLC4.cs" />
+    <Compile Include="Nss\Gecko.cs" />
+    <Compile Include="Nss\NSPR4.cs" />
+    <Compile Include="Nss\NSS3.cs" />
+    <Compile Include="Nss\SECItem.cs" />
+    <Compile Include="Nss\SECItemType.cs" />
+    <Compile Include="Nss\SECStatus.cs" />
     <Compile Include="Profiles\Profile.cs" />
     <Compile Include="Profiles\ProfileInfo.cs" />
     <Compile Include="Profiles\ProfileParser.cs" />
@@ -150,110 +161,99 @@
       <DependentUpon>ErrorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Utilities\WebScraper.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\Gecko.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSPR4.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\NSPR4.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\NSS3.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS3.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\NSPR4.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\NSS3.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\PLC4.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\SECItem.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\SECItemType.cs" />
-    <Compile Include="WebSiteAdvantageKeePassFirefox-Gecko\SECStatus.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\freebl3.dll">
+    <Content Include="Nss\NSS312\freebl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\js3250.dll">
+    <Content Include="Nss\NSS312\js3250.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\mozcrt19.dll">
+    <Content Include="Nss\NSS312\mozcrt19.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\nspr4.dll">
+    <Content Include="Nss\NSS312\nspr4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\nss3.dll">
+    <Content Include="Nss\NSS312\nss3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\nssckbi.dll">
+    <Content Include="Nss\NSS312\nssckbi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\nssdbm3.dll">
+    <Content Include="Nss\NSS312\nssdbm3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\nssutil3.dll">
+    <Content Include="Nss\NSS312\nssutil3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\plc4.dll">
+    <Content Include="Nss\NSS312\plc4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\plds4.dll">
+    <Content Include="Nss\NSS312\plds4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\smime3.dll">
+    <Content Include="Nss\NSS312\smime3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\softokn3.dll">
+    <Content Include="Nss\NSS312\softokn3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\sqlite3.dll">
+    <Content Include="Nss\NSS312\sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\ssl3.dll">
+    <Content Include="Nss\NSS312\ssl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS312\xpcom.dll">
+    <Content Include="Nss\NSS312\xpcom.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\freebl3.dll">
+    <Content Include="Nss\NSS64\freebl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\js6450.dll">
+    <Content Include="Nss\NSS64\js6450.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\mozcrt19.dll">
+    <Content Include="Nss\NSS64\mozcrt19.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\nspr4.dll">
+    <Content Include="Nss\NSS64\nspr4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\nss3.dll">
+    <Content Include="Nss\NSS64\nss3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\nssckbi.dll">
+    <Content Include="Nss\NSS64\nssckbi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\nssdbm3.dll">
+    <Content Include="Nss\NSS64\nssdbm3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\nssutil3.dll">
+    <Content Include="Nss\NSS64\nssutil3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\plc4.dll">
+    <Content Include="Nss\NSS64\plc4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\plds4.dll">
+    <Content Include="Nss\NSS64\plds4.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\README.txt">
+    <Content Include="Nss\NSS64\README.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\smime3.dll">
+    <Content Include="Nss\NSS64\smime3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\softokn3.dll">
+    <Content Include="Nss\NSS64\softokn3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\sqlite3.dll">
+    <Content Include="Nss\NSS64\sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\ssl3.dll">
+    <Content Include="Nss\NSS64\ssl3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebSiteAdvantageKeePassFirefox-Gecko\NSS64\xpcom.dll">
+    <Content Include="Nss\NSS64\xpcom.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
