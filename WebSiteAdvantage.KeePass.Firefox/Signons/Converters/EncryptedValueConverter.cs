@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-using WebSiteAdvantage.KeePass.Firefox.Gecko;
+using WebSiteAdvantage.KeePass.Firefox.Nss;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Signons.Converters
 {
@@ -23,7 +23,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons.Converters
             object existingValue,
             JsonSerializer serializer)
         {
-            return NSS3.DecodeAndDecrypt((string)reader.Value);
+            return NssUtils.DecodeAndDecrypt((string)reader.Value);
         }
 
         /// <inheritdoc />

@@ -21,269 +21,68 @@ using System.Runtime.InteropServices;
 
 using NLog;
 
-using WebSiteAdvantage.KeePass.Firefox.Nss;
+using static WebSiteAdvantage.KeePass.Firefox.Nss.Native.NssNativeMethods;
 
-namespace WebSiteAdvantage.KeePass.Firefox.Gecko
+namespace WebSiteAdvantage.KeePass.Firefox.Nss
 {
     /// <summary>
-    /// A Network Security Services API wraper class.
+    /// Contains utility methods for the Network Security Services API.
     /// </summary>
-    public static class NSS3
+    internal static class NssUtils
     {
-        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public static void LoadDependencies()
-        {
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    NSS310.NSS3.LoadDependencies();
-                //    break;
-                case "NSS312":
-                    NSS312.NSS3.LoadDependencies();
-                    break;
-                case "NSS64":
-                    NSS64.NSS3.LoadDependencies();
-                    break;
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        #region DLL Methods
-        public static SECStatus NSS_Init(string profilePath)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    return NSS310.NSS3.NSS_Init(profilePath);
-                case "NSS312":
-                    return NSS312.NSS3.NSS_Init(profilePath);
-                case "NSS64":
-                    return NSS64.NSS3.NSS_Init(profilePath);
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static SECStatus NSS_Shutdown()
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    return NSS310.NSS3.NSS_Shutdown();
-                case "NSS312":
-                    return NSS312.NSS3.NSS_Shutdown();
-                case "NSS64":
-                    return NSS64.NSS3.NSS_Shutdown();
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static IntPtr PK11_GetInternalKeySlot()
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    return NSS310.NSS3.PK11_GetInternalKeySlot();
-                case "NSS312":
-                    return NSS312.NSS3.PK11_GetInternalKeySlot();
-                case "NSS64":
-                    return NSS64.NSS3.PK11_GetInternalKeySlot();
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static void PK11_FreeSlot(IntPtr slot)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    NSS310.NSS3.PK11_FreeSlot(slot);
-                //    break;
-                case "NSS312":
-                    NSS312.NSS3.PK11_FreeSlot(slot);
-                    break;
-                case "NSS64":
-                    NSS64.NSS3.PK11_FreeSlot(slot);
-                    break;
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static SECStatus PK11_CheckUserPassword(IntPtr slot, string password)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    return NSS310.NSS3.PK11_CheckUserPassword(slot, password);
-                case "NSS312":
-                    return NSS312.NSS3.PK11_CheckUserPassword(slot, password);
-                case "NSS64":
-                    return NSS64.NSS3.PK11_CheckUserPassword(slot, password);
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static SECStatus PK11_Authenticate(IntPtr slot, bool loadCerts, IntPtr wincx)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    return NSS310.NSS3.PK11_Authenticate(slot, loadCerts, wincx);
-                case "NSS312":
-                    return NSS312.NSS3.PK11_Authenticate(slot, loadCerts, wincx);
-                case "NSS64":
-                    return NSS64.NSS3.PK11_Authenticate(slot, loadCerts, wincx);
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static SECStatus PK11SDR_Decrypt(IntPtr encryptedItem, ref SECItem text, IntPtr cx)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    return NSS310.NSS3.PK11SDR_Decrypt(encryptedItem, ref  text, cx);
-                case "NSS312":
-                    return NSS312.NSS3.PK11SDR_Decrypt(encryptedItem, ref  text, cx);
-                case "NSS64":
-                    return NSS64.NSS3.PK11SDR_Decrypt(encryptedItem, ref  text, cx);
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static IntPtr NSSBase64_DecodeBuffer(IntPtr p1, IntPtr p2, string encoded, int encoded_len)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    return NSS310.NSS3.NSSBase64_DecodeBuffer(p1, p2, encoded, encoded_len);
-                case "NSS312":
-                    return NSS312.NSS3.NSSBase64_DecodeBuffer(p1, p2, encoded, encoded_len);
-                case "NSS64":
-                    return NSS64.NSS3.NSSBase64_DecodeBuffer(p1, p2, encoded, encoded_len);
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static void SECITEM_FreeItem(ref SECItem item, int bDestroy)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    NSS310.NSS3.SECITEM_FreeItem(ref  item, bDestroy);
-                //    break;
-                case "NSS312":
-                    NSS312.NSS3.SECITEM_FreeItem(ref  item, bDestroy);
-                    break;
-                case "NSS64":
-                    NSS64.NSS3.SECITEM_FreeItem(ref  item, bDestroy);
-                    break;
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-
-        public static void SECITEM_FreeItem(IntPtr item, int bDestroy)
-        {
-            LoadDependencies();
-
-            switch (Gecko.Version)
-            {
-                //case "NSS310":
-                //    NSS310.NSS3.SECITEM_FreeItem(item, bDestroy);
-                //    break;
-                case "NSS312":
-                    NSS312.NSS3.SECITEM_FreeItem(item, bDestroy);
-                    break;
-                case "NSS64":
-                    NSS64.NSS3.SECITEM_FreeItem(item, bDestroy);
-                    break;
-                default:
-                    throw new InvalidOperationException("Unsupported Gecko version.");
-            }
-        }
-        #endregion
-
-        #region Utilities
+        /// <summary>
+        /// Decodes and, if encrypted, decrypts Base64-encoded data.
+        /// </summary>
+        /// <param name="data">The data to decode (and decrypt).</param>
+        /// <returns>The decoded (and decrypted) data.</returns>
         public static string DecodeAndDecrypt(string data)
         {
             if (data == null)
                 return null;
 
+            string buf = null;
+
             if (data.StartsWith("~"))
             {
                 data = data.Substring(1);
-
-                string buf = null;
                 Decode(data, ref buf);
-                return buf;
             }
             else
             {
-                string buf = null;
                 Decrypt(data, ref buf);
-
-                return buf;
             }
+
+            return buf;
         }
 
         /// <summary>
-        /// use NSS to decode and decrypt a string
+        /// Decodes and decrypts Base64-encoded encrypted data.
         /// </summary>
-        /// <param name="base64EncryptedData">data that is encrypted and then base64 encoded</param>
-        /// <param name="result">clear text result</param>
-        /// <returns>success status</returns>
-        private static SECStatus Decrypt(string base64EncryptedData, ref string result)
+        /// <param name="data">The data to decode and decrypt.</param>
+        /// <param name="result">The decoded and decrypted data.</param>
+        /// <returns>The status of the function's execution.</returns>
+        private static SecStatus Decrypt(string data, ref string result)
         {
-            var status = SECStatus.Success;
-            var decodedItem = new SECItem();
+            var status = SecStatus.Success;
+            var decodedItem = new SecItem { Data = IntPtr.Zero, Length = 0 };
             IntPtr decodedObject = IntPtr.Zero;
             result = string.Empty;
 
-            decodedItem.Data = IntPtr.Zero;
-            decodedItem.Length = 0;
-
             try
             {
-
-                decodedObject = NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, base64EncryptedData, base64EncryptedData.Length);
+                decodedObject = NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, data, data.Length);
 
                 if (decodedObject == IntPtr.Zero)
                 {
-                    status = SECStatus.Failure;
+                    status = SecStatus.Failure;
                 }
                 else
                 {
                     status = PK11SDR_Decrypt(decodedObject, ref decodedItem, IntPtr.Zero);
 
-                    if (status != SECStatus.Success)
+                    if (status != SecStatus.Success)
                         throw new NsprException("Failed to decrypt data.");
 
                     try
@@ -292,7 +91,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
                     }
                     finally
                     {
-                        SECITEM_FreeItem(ref decodedItem, 0);
+                        SECITEM_FreeItem(ref decodedItem, false);
                     }
 
                 }
@@ -300,15 +99,13 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
             catch(Exception ex)
             {
 
-                status = SECStatus.Failure;
-                _Logger.Error(ex, "Decription failed.");
+                status = SecStatus.Failure;
+                Logger.Error(ex, "Decryption failed.");
             }
             finally
             {
                 if (decodedObject != IntPtr.Zero)
-                {
-                    SECITEM_FreeItem(decodedObject, 1);
-                }
+                    SECITEM_FreeItem(decodedObject, true);
 
                 if (decodedItem.Data != IntPtr.Zero)
                     Marshal.FreeHGlobal(decodedItem.Data);
@@ -318,48 +115,48 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
         }
 
         /// <summary>
-        /// use NSS to decode a string
+        /// Decodes Base64-encoded data.
         /// </summary>
-        /// <param name="base64Data">data that is base64 encoded</param>
-        /// <param name="result">clear text result</param>
-        /// <returns>success status</returns>
-        private static SECStatus Decode(string base64Data, ref string result)
+        /// <param name="data">The data to decode.</param>
+        /// <param name="result">The decoded data.</param>
+        /// <returns>The status of the function's execution.</returns>
+        private static SecStatus Decode(string data, ref string result)
         {
-            var status = SECStatus.Success;
-            var decodedItem = new SECItem();
+            var status = SecStatus.Success;
+            var decodedItem = new SecItem();
             IntPtr decodedObject = IntPtr.Zero;
             result = string.Empty;
 
             try
             {
-                decodedObject = NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, base64Data, base64Data.Length);
+                decodedObject = NSSBase64_DecodeBuffer(IntPtr.Zero, IntPtr.Zero, data, data.Length);
 
                 if (decodedObject == IntPtr.Zero)
                 {
-                    status = SECStatus.Failure;
+                    status = SecStatus.Failure;
                 }
                 else
                 {
                     try
                     {
-                        decodedItem = (SECItem)Marshal.PtrToStructure(decodedObject, typeof(SECItem));
+                        decodedItem = (SecItem)Marshal.PtrToStructure(decodedObject, typeof(SecItem));
                         result = Marshal.PtrToStringAnsi(decodedItem.Data, decodedItem.Length);
                     }
                     finally
                     {
-                        SECITEM_FreeItem(decodedObject, 1);
+                        SECITEM_FreeItem(decodedObject, true);
                     }
                 }
             }
             catch(Exception ex)
             {
-                status = SECStatus.Failure;
-                _Logger.Error(ex, "Decoding failed.");
+                status = SecStatus.Failure;
+                Logger.Error(ex, "Decoding failed.");
             }
             finally
             {
                 if (decodedObject != IntPtr.Zero)
-                    SECITEM_FreeItem(decodedObject, 1);
+                    SECITEM_FreeItem(decodedObject, true);
 
                 if (decodedItem.Data != IntPtr.Zero)
                     Marshal.FreeHGlobal(decodedItem.Data);
@@ -367,7 +164,5 @@ namespace WebSiteAdvantage.KeePass.Firefox.Gecko
 
             return status;
         }
-
-        #endregion
     }
 }

@@ -24,7 +24,7 @@ using System.IO;
 using Newtonsoft.Json;
 
 using WebSiteAdvantage.KeePass.Firefox.Extensions;
-using WebSiteAdvantage.KeePass.Firefox.Gecko;
+using WebSiteAdvantage.KeePass.Firefox.Nss;
 using WebSiteAdvantage.KeePass.Firefox.Signons.Converters;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Signons
@@ -124,9 +124,9 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
                     {
                         Hostname = reader.GetString("hostname"),
                         HttpRealm = reader.GetString("httpRealm"),
-                        Username = NSS3.DecodeAndDecrypt(reader.GetString("encryptedUsername")),
+                        Username = NssUtils.DecodeAndDecrypt(reader.GetString("encryptedUsername")),
                         UserNameField = reader.GetString("usernameField"),
-                        Password = NSS3.DecodeAndDecrypt(reader.GetString("encryptedPassword")),
+                        Password = NssUtils.DecodeAndDecrypt(reader.GetString("encryptedPassword")),
                         PasswordField = reader.GetString("passwordField"),
                         FormSubmitUrl = reader.GetString("formSubmitURL"),
                         TimeCreated = UnixTimeConverter.Convert(reader.GetNullableUInt64("timeCreated")),
