@@ -28,7 +28,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Nss
     {
         public SecItemType Type;
         public IntPtr Data;
-        public uint Length;
+        public int Length; // Should be uint.
     }
 
     /// <summary>
