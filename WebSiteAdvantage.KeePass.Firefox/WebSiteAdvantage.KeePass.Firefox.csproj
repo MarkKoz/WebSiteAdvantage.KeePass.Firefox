@@ -134,8 +134,8 @@
     <Compile Include="Nss\Native\NativeUtils.cs" />
     <Compile Include="Nss\Native\NsprNativeMethods.cs" />
     <Compile Include="Nss\Native\NssNativeMethods.cs" />
-    <Compile Include="Nss\NSPR4.cs" />
-    <Compile Include="Nss\NSS3.cs" />
+    <Compile Include="Nss\NsprException.cs" />
+    <Compile Include="Nss\NssUtils.cs" />
     <Compile Include="Nss\SecCommon.cs" />
     <Compile Include="Profiles\Profile.cs" />
     <Compile Include="Profiles\ProfileInfo.cs" />
