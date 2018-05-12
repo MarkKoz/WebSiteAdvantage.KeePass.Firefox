@@ -23,6 +23,7 @@ using System.IO;
 using NLog;
 
 using WebSiteAdvantage.KeePass.Firefox.Gecko;
+using WebSiteAdvantage.KeePass.Firefox.Nss;
 using WebSiteAdvantage.KeePass.Firefox.Signons;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Profiles

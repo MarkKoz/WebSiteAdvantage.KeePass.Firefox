@@ -21,6 +21,8 @@ using System.Runtime.InteropServices;
 
 using NLog;
 
+using WebSiteAdvantage.KeePass.Firefox.Nss;
+
 namespace WebSiteAdvantage.KeePass.Firefox.Gecko
 {
     /// <summary>
