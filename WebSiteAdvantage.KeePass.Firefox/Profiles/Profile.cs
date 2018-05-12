@@ -22,9 +22,11 @@ using System.IO;
 
 using NLog;
 
-using WebSiteAdvantage.KeePass.Firefox.Gecko;
 using WebSiteAdvantage.KeePass.Firefox.Nss;
 using WebSiteAdvantage.KeePass.Firefox.Signons;
+
+using static WebSiteAdvantage.KeePass.Firefox.Nss.Native.NsprNativeMethods;
+using static WebSiteAdvantage.KeePass.Firefox.Nss.Native.NssNativeMethods;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 {
@@ -83,7 +85,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
         /// <exception cref="NsprException">Thrown when the profile cannot be initialised.</exception>
         private void Init()
         {
-            if (NSS3.NSS_Init(Path) != SECStatus.Success)
+            if (NSS_Init(Path) != SecStatus.Success)
                 throw new NsprException($"Failed to initialise profile at {Path}.");
         }
 
@@ -95,17 +97,17 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
         /// <exception cref="NsprException">Thrown when a key slot cannot be retrieved.</exception>
         private void Login(string password)
         {
-            slot = NSS3.PK11_GetInternalKeySlot(); // Gets a slot to work with.
+            slot = PK11_GetInternalKeySlot(); // Gets a slot to work with.
 
             if (slot == IntPtr.Zero)
                 throw new NsprException("Failed to get internal key slot.");
 
-            SECStatus result = NSS3.PK11_CheckUserPassword(slot, password);
+            SecStatus result = PK11_CheckUserPassword(slot, password);
 
-            if (result != SECStatus.Success)
+            if (result != SecStatus.Success)
             {
-                int error = NSPR4.PR_GetError();
-                string errorName = NSPR4.PR_ErrorToName(error);
+                int error = PR_GetError();
+                string errorName = PR_ErrorToName(error);
 
                 throw new ArgumentException($"Failed to validate the profile's password: ({error}) {errorName}.", nameof(password));
             }
@@ -150,9 +152,9 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 
         public void Dispose()
         {
-            NSS3.PK11_FreeSlot(slot);
+            PK11_FreeSlot(slot);
 
-            if (NSS3.NSS_Shutdown() != SECStatus.Success)
+            if (NSS_Shutdown() != SecStatus.Success)
                 throw new NsprException("Failed to shut down.");
         }
     }
