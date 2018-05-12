@@ -121,12 +121,12 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             string pathDb = System.IO.Path.Combine(Path, "signons.sqlite");
 
             if (File.Exists(pathJson))
-                return SignonParser.ParseJson(Path);
+                return SignonParser.ParseJson(pathJson);
 
             _Logger.Info("logins.json could not be found. Falling back to signons.sqlite.");
 
             if (File.Exists(pathDb))
-                return SignonParser.ParseDatabase(Path);
+                return SignonParser.ParseDatabase(pathDb);
 
             throw new FileNotFoundException("No sign on file could be found.", "signons.sqlite");
         }
