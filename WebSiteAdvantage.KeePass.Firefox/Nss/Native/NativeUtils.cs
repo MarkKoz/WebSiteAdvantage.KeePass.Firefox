@@ -12,7 +12,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Nss.Native
         /// Base path for native library modules.
         /// </summary>
         public static string BasePath => Path.Combine(
-            new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath,
+            Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath),
             @"Nss\",
             Environment.Is64BitProcess ? @"x64\" : @"x86\");
 
