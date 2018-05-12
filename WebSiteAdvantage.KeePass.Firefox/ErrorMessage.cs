@@ -18,100 +18,77 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 
+using WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers;
+
 namespace WebSiteAdvantage.KeePass.Firefox
 {
+    /// <summary>
+    /// A form which displays errors in a user-friendly manner.
+    /// </summary>
     public partial class ErrorMessage : Form
     {
-        public ErrorMessage()
+        private static readonly PrettyExceptionLayoutRenderer _Renderer =
+            new PrettyExceptionLayoutRenderer { Indent = string.Empty, NewLine = Environment.NewLine };
+
+        internal ErrorMessage()
         {
             InitializeComponent();
+            Icon = SystemIcons.Error;
         }
 
-        public string Message {
-            get
-            {
-            	return this.labelMessage.Text;
-            }
-            set {
-                this.labelMessage.Text = value;
-            }
+        /// <summary>
+        /// The message to display as a header.
+        /// </summary>
+        public string Message
+        {
+            get => labelMessage.Text;
+            internal set => labelMessage.Text = value;
         }
 
+        /// <summary>
+        /// The error log (e.g. stack trace) to display in the text box.
+        /// </summary>
         public string Log
         {
-            get
-            {
-                return this.textBoxLog.Text;
-            }
-            set
-            {
-                this.textBoxLog.Text = value;
-            }
+            get => textBoxLog.Text;
+            internal set => textBoxLog.Text = value;
         }
 
-        public static void ShowErrorMessage(string toolName, string message, Exception ex)
+        /// <summary>
+        /// Displays a message, diagnostic info, and an exception stack trace in a dialog box.
+        /// </summary>
+        /// <param name="message">The error message to display.</param>
+        /// <param name="exception">The exception caught.</param>
+        public static void Show(string message, Exception exception)
         {
-
-            ErrorMessage dialog = new ErrorMessage();
-
-            dialog.Message = message;
-
-            StringBuilder sb = new StringBuilder();
+            var dialog = new ErrorMessage { Message = message };
+            var sb = new StringBuilder();
+            AssemblyName assembly = Assembly.GetCallingAssembly().GetName();
 
             sb.AppendLine("Message: " + message);
-            sb.AppendLine("Program: " + toolName);
-             sb.AppendLine("Version: " + KeePassUtilities.Version);
+            sb.AppendLine("Program: " + assembly.Name);
+            sb.AppendLine("Version: " + assembly.Version);
+            sb.AppendLine("Library Version: " + Assembly.GetExecutingAssembly().GetName().Version);
+            sb.AppendLine("Process: " + (Environment.Is64BitProcess ? "64-bit" : "not 64-bit"));
+            sb.AppendLine("Processor Architecture: " + assembly.ProcessorArchitecture);
+            sb.AppendLine();
+            _Renderer.Append(sb, exception);
 
-
-             sb.AppendLine("Assembly Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-
-             if (Environment.Is64BitProcess)
-                 sb.AppendLine("Process: 64bit");
-             else
-                 sb.AppendLine("Process: not 64bit");
-
-             sb.AppendLine("Processor Architecture: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().ProcessorArchitecture.ToString());
-
-
-            if (ex !=null)
-            {
-                sb.AppendLine();
-                sb.AppendLine("Exception");
-                sb.AppendLine(ex.Message);
-                sb.AppendLine("Source: "+ex.Source);
-                sb.AppendLine(ex.StackTrace);
-
-                if (ex.InnerException!=null)
-                {
-                sb.AppendLine();
-
-                sb.AppendLine("Inner Exception");
-                sb.AppendLine(ex.InnerException.Message);
-                sb.AppendLine("Source: "+ex.InnerException.Source);
-                sb.AppendLine(ex.InnerException.StackTrace);
-                }
-            }
             dialog.Log = sb.ToString();
-
             dialog.ShowDialog();
         }
 
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void EmailClickedEventHandler(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("mailto:tony@websiteadvantage.com.au");
-
         }
 
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void TroubleshootingClickedEventHandler(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("https://websiteadvantage.com.au/Firefox-KeePass-Password-Import#heading-trouble");
         }
