@@ -32,7 +32,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
     /// </summary>
     public class Profile : IDisposable
     {
-        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         #region Constructors
 
@@ -94,12 +94,12 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
         /// <exception cref="NsprException">Thrown when a key slot cannot be retrieved.</exception>
         private void Login(string password)
         {
-            _Slot = NSS3.PK11_GetInternalKeySlot(); // Gets a slot to work with.
+            slot = NSS3.PK11_GetInternalKeySlot(); // Gets a slot to work with.
 
-            if (_Slot == IntPtr.Zero)
+            if (slot == IntPtr.Zero)
                 throw new NsprException("Failed to get internal key slot.");
 
-            SECStatus result = NSS3.PK11_CheckUserPassword(_Slot, password);
+            SECStatus result = NSS3.PK11_CheckUserPassword(slot, password);
 
             if (result != SECStatus.Success)
             {
@@ -123,7 +123,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             if (File.Exists(pathJson))
                 return SignonParser.ParseJson(pathJson);
 
-            _Logger.Info("logins.json could not be found. Falling back to signons.sqlite.");
+            Logger.Info("logins.json could not be found. Falling back to signons.sqlite.");
 
             if (File.Exists(pathDb))
                 return SignonParser.ParseDatabase(pathDb);
@@ -133,7 +133,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 
         #region Profile Data
 
-        private IntPtr _Slot;
+        private IntPtr slot;
 
         /// <summary>
         /// The profile's information. <c>null</c> if <see cref="Profile(string,string)"/> is used.
@@ -149,7 +149,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 
         public void Dispose()
         {
-            NSS3.PK11_FreeSlot(_Slot);
+            NSS3.PK11_FreeSlot(slot);
 
             if (NSS3.NSS_Shutdown() != SECStatus.Success)
                 throw new NsprException("Failed to shut down.");

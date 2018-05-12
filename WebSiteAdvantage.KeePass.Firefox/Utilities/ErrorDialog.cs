@@ -32,7 +32,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
     /// </summary>
     public partial class ErrorDialog : Form
     {
-        private static readonly PrettyExceptionLayoutRenderer _Renderer =
+        private static readonly PrettyExceptionLayoutRenderer Renderer =
             new PrettyExceptionLayoutRenderer { Indent = string.Empty, NewLine = Environment.NewLine };
 
         internal ErrorDialog()
@@ -77,7 +77,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
             sb.AppendLine("Process: " + (Environment.Is64BitProcess ? "64-bit" : "not 64-bit"));
             sb.AppendLine("Processor Architecture: " + assembly.ProcessorArchitecture);
             sb.AppendLine();
-            _Renderer.Append(sb, exception);
+            Renderer.Append(sb, exception);
 
             dialog.Log = sb.ToString();
             dialog.ShowDialog();

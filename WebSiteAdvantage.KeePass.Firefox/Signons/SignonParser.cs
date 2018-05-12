@@ -97,7 +97,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
                 ReadOnly = true
             };
 
-            const string commandText =
+            const string CommandText =
                 @"SELECT
                         hostname,
                         httpRealm,
@@ -115,7 +115,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
 
             // Doesn't handle exceptions since they were just being rethrown anyway. Default messages are adequately descriptive.
             using (var connection = new SQLiteConnection(connectionBuilder.ConnectionString).OpenAndReturn())
-            using (var command = new SQLiteCommand(commandText, connection))
+            using (var command = new SQLiteCommand(CommandText, connection))
             using (SQLiteDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())

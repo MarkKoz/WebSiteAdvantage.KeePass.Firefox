@@ -14,12 +14,12 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
     /// </summary>
     internal static class ProfileParser
     {
-        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Possible paths to <c>profiles.ini</c> files.
         /// </summary>
-        private static readonly string[] _IniPaths =
+        private static readonly string[] IniPaths =
         {
             @"Mozilla\Firefox\profiles.ini",
             @"Thunderbird\profiles.ini",
@@ -44,7 +44,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             }
             catch (Exception e)
             {
-                _Logger.Error(e, "Error reading a profile INI."); // Catching may be redundant, but just in case...
+                Logger.Error(e, "Error reading a profile INI."); // Catching may be redundant, but just in case...
             }
 
             return null;
@@ -65,7 +65,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
 
             foreach (string basePath in basePaths)
             {
-                foreach (string path in _IniPaths)
+                foreach (string path in IniPaths)
                     yield return Path.Combine(basePath, path);
             }
         }
@@ -81,11 +81,11 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             {
                 if (!File.Exists(path))
                 {
-                    _Logger.Debug("File does not exist at " + path);
+                    Logger.Debug("File does not exist at " + path);
                     continue;
                 }
 
-                _Logger.Info("File exists at " + path);
+                Logger.Info("File exists at " + path);
 
                 using (StreamReader reader = File.OpenText(path))
                 {

@@ -34,15 +34,15 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
     /// </summary>
     public static class WebScraper
     {
-        private static readonly HttpClient _HttpClient = new HttpClient();
-        private static readonly Logger _Logger = LogManager.GetCurrentClassLogger();
+        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         static WebScraper()
         {
             // ServicePointManager.MaxServicePointIdleTime =
             // ServicePointManager.MaxServicePoints =
             // ServicePointManager.DefaultConnectionLimit = ;
-            _HttpClient.Timeout = TimeSpan.FromSeconds(10);
+            HttpClient.Timeout = TimeSpan.FromSeconds(10);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
                 if (scrapeIcon)
                     iconUrls.Add(new UriBuilder(uri) {Path = "/favicon.ico"}.Uri.AbsoluteUri);
 
-                using (HttpResponseMessage response = await _HttpClient.GetAsync(uri).ConfigureAwait(false))
+                using (HttpResponseMessage response = await HttpClient.GetAsync(uri).ConfigureAwait(false))
                 {
                     if (!response.IsSuccessStatusCode)
                         throw new HttpRequestException($"A request for {url} failed: {(int)response.StatusCode} {response.ReasonPhrase}.");
@@ -90,7 +90,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
                                     .Select(n => n.GetAttributeValue("href", null)).Where(v => v != null));
 
                             if (iconUrls.Count == 1)
-                                _Logger.Warn(
+                                Logger.Warn(
                                     $"Did not find any icon link tags for {url}; relying on favicon at server root.");
 
                             icon = await GetIcon(iconUrls, uri);
@@ -105,15 +105,15 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
                 {
                     case ArgumentException _: // TODO: Too broad. Intended to catch invalid URI schemes.
                     case UriFormatException _:
-                        _Logger.Error($"The URI {url} is invalid.");
+                        Logger.Error($"The URI {url} is invalid.");
 
                         break;
                     case TaskCanceledException _: // TODO: Too broad.
-                        _Logger.Error($"The request for {url} timed out ({_HttpClient.Timeout}).");
+                        Logger.Error($"The request for {url} timed out ({HttpClient.Timeout}).");
 
                         break;
                     default:
-                        _Logger.Error(e, $"Error scraping {url}.");
+                        Logger.Error(e, $"Error scraping {url}.");
 
                         break;
                 }
@@ -122,9 +122,9 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
             if (scrapeTitle)
             {
                 if (title == null)
-                    _Logger.Error($"Error scraping title for {url}.");
+                    Logger.Error($"Error scraping title for {url}.");
                 else
-                    _Logger.Info($"Successfully scraped title for {url}.");
+                    Logger.Info($"Successfully scraped title for {url}.");
             }
 
             // Tries to at least get the server root favicon if an exception occurs.
@@ -157,7 +157,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
 
                     if (!uri.IsAbsoluteUri && !Uri.TryCreate(site, url.TrimStart('/'), out uri)) continue;
 
-                    using (HttpResponseMessage response = await _HttpClient.GetAsync(uri).ConfigureAwait(false))
+                    using (HttpResponseMessage response = await HttpClient.GetAsync(uri).ConfigureAwait(false))
                     {
                         if (!response.IsSuccessStatusCode)
                             throw new HttpRequestException($"A request for {url} failed: {(int)response.StatusCode} {response.ReasonPhrase}.");
@@ -174,15 +174,15 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
                     {
                         case ArgumentException _: // TODO: Too broad. Intended to catch invalid URI schemes.
                         case UriFormatException _:
-                            _Logger.Error($"The URI {url} is invalid.");
+                            Logger.Error($"The URI {url} is invalid.");
 
                             break;
                         case TaskCanceledException _: // TODO: Too broad.
-                            _Logger.Error($"The request for {url} timed out ({_HttpClient.Timeout}).");
+                            Logger.Error($"The request for {url} timed out ({HttpClient.Timeout}).");
 
                             break;
                         default:
-                            _Logger.Error(e, $"Error retrieving icon from {url}.");
+                            Logger.Error(e, $"Error retrieving icon from {url}.");
 
                             break;
                     }
@@ -190,9 +190,9 @@ namespace WebSiteAdvantage.KeePass.Firefox.Utilities
             }
 
             if (icon == null)
-                _Logger.Error($"Failed to scrape any icon for {site.AbsoluteUri}.");
+                Logger.Error($"Failed to scrape any icon for {site.AbsoluteUri}.");
             else
-                _Logger.Info($"Successfully scraped icon from {iconUrl} for {site.AbsoluteUri}.");
+                Logger.Info($"Successfully scraped icon from {iconUrl} for {site.AbsoluteUri}.");
 
             return icon;
         }
