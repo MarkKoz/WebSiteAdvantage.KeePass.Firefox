@@ -22,10 +22,10 @@ using System.Data.SQLite;
 using System.IO;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using WebSiteAdvantage.KeePass.Firefox.Extensions;
 using WebSiteAdvantage.KeePass.Firefox.Gecko;
+using WebSiteAdvantage.KeePass.Firefox.Signons.Converters;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Signons
 {
@@ -41,24 +41,44 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// <returns>The parsed sign ons.</returns>
         public static IEnumerable<Signon> ParseJson(string path)
         {
-            JObject responseJson = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(path));
-
-            foreach (JObject login in responseJson["logins"])
+            using (var reader = new StreamReader(path))
+            using (var jsonReader = new JsonTextReader(reader) {SupportMultipleContent = true})
             {
-                yield return new Signon
+                var settings = new JsonSerializerSettings
                 {
-                    Hostname = login["hostname"].ToString(),
-                    HttpRealm = login["httpRealm"].ToString(),
-                    UserName = NSS3.DecodeAndDecrypt(login["encryptedUsername"].ToString()),
-                    UserNameField = login["usernameField"].ToString(),
-                    Password = NSS3.DecodeAndDecrypt(login["encryptedPassword"].ToString()),
-                    PasswordField = login["passwordField"].ToString(),
-                    FormSubmitUrl = login["formSubmitURL"].ToString(),
-                    TimeCreated = ConvertUnixTime((ulong)login["timeCreated"]),
-                    TimeLastUsed = ConvertUnixTime((ulong)login["timeLastUsed"]),
-                    TimePasswordChanged = ConvertUnixTime((ulong)login["timePasswordChanged"]),
-                    TimesUsed = (ulong)login["timesUsed"]
+                    MissingMemberHandling = MissingMemberHandling.Ignore,
+                    DateParseHandling = DateParseHandling.None
                 };
+
+                JsonSerializer serialiser = JsonSerializer.Create(settings);
+
+                int depth = -1;
+
+                // Finds the first object in logins.
+                while (jsonReader.Read())
+                {
+                    if (jsonReader.Path.Equals("logins[0]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        depth = jsonReader.Depth;
+
+                        break;
+                    }
+
+                    /*if (jsonReader.Depth > 1)
+                        jsonReader.Skip();*/
+                }
+
+                // Couldn't find anything valid.
+                if (depth == -1) yield break;
+
+                // Only deserialises at the depth at which the first object was found.
+                // If it's lower, it means the login's EndArray token was reached.
+                while (jsonReader.Depth == depth)
+                {
+                    yield return serialiser.Deserialize<Signon>(jsonReader);
+
+                    jsonReader.Read(); // Skips EndObject
+                }
             }
         }
 
@@ -104,30 +124,18 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
                     {
                         Hostname = reader.GetString("hostname"),
                         HttpRealm = reader.GetString("httpRealm"),
-                        UserName = NSS3.DecodeAndDecrypt(reader.GetString("encryptedUsername")),
+                        Username = NSS3.DecodeAndDecrypt(reader.GetString("encryptedUsername")),
                         UserNameField = reader.GetString("usernameField"),
                         Password = NSS3.DecodeAndDecrypt(reader.GetString("encryptedPassword")),
                         PasswordField = reader.GetString("passwordField"),
                         FormSubmitUrl = reader.GetString("formSubmitURL"),
-                        TimeCreated = ConvertUnixTime(reader.GetNullableUInt64("timeCreated")),
-                        TimeLastUsed = ConvertUnixTime(reader.GetNullableUInt64("timeLastUsed")),
-                        TimePasswordChanged = ConvertUnixTime(reader.GetNullableUInt64("timePasswordChanged")),
+                        TimeCreated = UnixTimeConverter.Convert(reader.GetNullableUInt64("timeCreated")),
+                        TimeLastUsed = UnixTimeConverter.Convert(reader.GetNullableUInt64("timeLastUsed")),
+                        TimePasswordChanged = UnixTimeConverter.Convert(reader.GetNullableUInt64("timePasswordChanged")),
                         TimesUsed = reader.GetUInt64("timesUsed")
                     };
                 }
             }
-        }
-
-        /// <summary>
-        /// Converts a unix time, in miliseconds, to a <see cref="Nullable{DateTime}"/> in UTC.
-        /// </summary>
-        /// <param name="unixTimeMs">The unix timestamp, in miliseconds, to convert.</param>
-        /// <returns>The converted time.</returns>
-        private static DateTime? ConvertUnixTime(ulong? unixTimeMs)
-        {
-            return unixTimeMs.HasValue
-                ? new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTimeMs.Value)
-                : default(DateTime?);
         }
     }
 }

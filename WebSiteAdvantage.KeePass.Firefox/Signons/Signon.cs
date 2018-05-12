@@ -18,6 +18,10 @@
 
 using System;
 
+using Newtonsoft.Json;
+
+using WebSiteAdvantage.KeePass.Firefox.Signons.Converters;
+
 namespace WebSiteAdvantage.KeePass.Firefox.Signons
 {
     /// <summary>
@@ -28,56 +32,72 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// <summary>
         /// The URL of the website the sign on is for.
         /// </summary>
+        [JsonProperty("hostname")]
         public string Hostname { get; set; }
 
         /// <summary>
         /// The sign on's HTTP realm. Used by HTTP-authenticated sign ons.
         /// </summary>
+        [JsonProperty("httpRealm")]
         public string HttpRealm { get; set; }
+
+        /// <summary>
+        /// The login form's domain.
+        /// </summary>
+        [JsonProperty("formSubmitURL")]
+        public string FormSubmitUrl { get; set; }
 
         /// <summary>
         /// The name of HTML user name field or blank for HTTP authentication.
         /// </summary>
+        [JsonProperty("usernameField")]
         public string UserNameField { get; set; }
 
         /// <summary>
         /// The name of HTML password field or blank for HTTP authentication.
         /// </summary>
+        [JsonProperty("passwordField")]
         public string PasswordField { get; set; }
 
         /// <summary>
         /// The decrypted username.
         /// </summary>
-        public string UserName { get; set; }
+        [JsonProperty("encryptedUsername")]
+        [JsonConverter(typeof(EncryptedValueConverter))]
+        public string Username { get; set; }
 
         /// <summary>
         /// The decrypted password.
         /// </summary>
+        [JsonProperty("encryptedPassword")]
+        [JsonConverter(typeof(EncryptedValueConverter))]
         public string Password { get; set; }
-
-        /// <summary>
-        /// The login form's domain.
-        /// </summary>
-        public string FormSubmitUrl { get; set; }
 
         /// <summary>
         /// When the sign on was created.
         /// </summary>
-        public DateTimeOffset? TimeCreated { get; set; }
+        [JsonProperty("timeCreated")]
+        [JsonConverter(typeof(UnixTimeConverter))]
+        public DateTime? TimeCreated { get; set; }
 
         /// <summary>
         /// When the sign on was last used.
         /// </summary>
-        public DateTimeOffset? TimeLastUsed { get; set; }
+        [JsonProperty("timeLastUsed")]
+        [JsonConverter(typeof(UnixTimeConverter))]
+        public DateTime? TimeLastUsed { get; set; }
 
         /// <summary>
         /// When the sign on was last modified.
         /// </summary>
-        public DateTimeOffset? TimePasswordChanged { get; set; }
+        [JsonProperty("timePasswordChanged")]
+        [JsonConverter(typeof(UnixTimeConverter))]
+        public DateTime? TimePasswordChanged { get; set; }
 
         /// <summary>
         /// Amount of times sign on was used.
         /// </summary>
+        [JsonProperty("timesUsed")]
         public ulong TimesUsed { get; set; }
     }
 }
