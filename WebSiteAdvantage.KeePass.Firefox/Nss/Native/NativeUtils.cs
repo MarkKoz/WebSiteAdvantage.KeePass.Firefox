@@ -19,21 +19,23 @@ namespace WebSiteAdvantage.KeePass.Firefox.Nss.Native
         /// <summary>
         /// Attempts to load a native library module. Wraps <see cref="NativeMethods.LoadLibrary"/>.
         /// </summary>
-        /// <exception cref="FileNotFoundException">Thrown when the library cannot be found.</exception>
         /// <exception cref="FileLoadException">Thrown when the library fails to load.</exception>
+        /// <exception cref="Win32Exception">Thrown when the DLL search path fails be set.</exception>
         /// <param name="name">The name of the library to load.</param>
         public static void LoadLibrary(string name)
         {
-            string path = Path.Combine(BasePath, name);
+            if (!NativeMethods.SetDllDirectory(BasePath))
+                throw new Win32Exception(Marshal.GetLastWin32Error());
 
-            if (!File.Exists(path))
-                throw new FileNotFoundException($"Could not find the library {name} at {path}", name);
-
-            if (NativeMethods.LoadLibrary(Path.Combine(BasePath, name)) == IntPtr.Zero)
+            if (NativeMethods.LoadLibrary(name) == IntPtr.Zero)
                 throw new FileLoadException(
-                    $"Could not load the library {name} at {path}",
+                    $"Could not load the library {name} at {BasePath}",
                     name,
                     new Win32Exception(Marshal.GetLastWin32Error()));
+
+            // Resets the search path.
+            if (!NativeMethods.SetDllDirectory(null))
+                throw new Win32Exception(Marshal.GetLastWin32Error());
         }
     }
 }
