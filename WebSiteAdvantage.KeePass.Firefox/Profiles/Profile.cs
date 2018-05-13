@@ -94,7 +94,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
         /// </summary>
         /// <param name="password">The profile's master password.</param>
         /// <exception cref="ArgumentException">Thrown when the password cannot be validated.</exception>
-        /// <exception cref="NsprException">Thrown when a key slot cannot be retrieved.</exception>
+        /// <exception cref="NsprException">Thrown when a key slot cannot be retrieved or authenticating it fails.</exception>
         private void Login(string password)
         {
             slot = PK11_GetInternalKeySlot(); // Gets a slot to work with.
@@ -102,15 +102,16 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             if (slot == IntPtr.Zero)
                 throw new NsprException("Failed to get internal key slot.");
 
-            SecStatus result = PK11_CheckUserPassword(slot, password);
-
-            if (result != SecStatus.Success)
+            if (PK11_CheckUserPassword(slot, password) != SecStatus.Success)
             {
                 int error = PR_GetError();
                 string errorName = PR_ErrorToName(error);
 
                 throw new ArgumentException($"Failed to validate the profile's password: ({error}) {errorName}.", nameof(password));
             }
+
+            if (PK11_Authenticate(slot, false, IntPtr.Zero) != SecStatus.Success)
+                throw new NsprException("Failed to authenticate the slot.");
         }
 
         /// <summary>
