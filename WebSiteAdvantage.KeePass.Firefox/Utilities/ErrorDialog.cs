@@ -1,4 +1,4 @@
-﻿/* WebSiteAdvantage KeePass to Firefox
+/* WebSiteAdvantage KeePass to Firefox
  * Copyright (C) 2008 - 2012  Anthony James McCreath
  *
  * This library is free software; you can redistribute it and/or

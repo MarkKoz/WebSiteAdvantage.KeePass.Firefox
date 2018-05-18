@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 
 using WebSiteAdvantage.KeePass.Firefox.Nss;

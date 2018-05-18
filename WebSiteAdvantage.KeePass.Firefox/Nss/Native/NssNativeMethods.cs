@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace WebSiteAdvantage.KeePass.Firefox.Nss.Native
