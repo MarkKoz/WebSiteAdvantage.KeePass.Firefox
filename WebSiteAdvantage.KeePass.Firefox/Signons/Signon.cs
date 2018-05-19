@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Xml.Serialization;
 
 using Newtonsoft.Json;
 
@@ -27,36 +28,42 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
     /// <summary>
     /// Saved sign on information from Firefox's signon file.
     /// </summary>
+    [XmlRoot("entry")]
     public class Signon
     {
         /// <summary>
         /// The URL of the website the sign on is for.
         /// </summary>
         [JsonProperty("hostname")]
+        [XmlAttribute("host")]
         public string Hostname { get; set; }
 
         /// <summary>
         /// The sign on's HTTP realm. Used by HTTP-authenticated sign ons.
         /// </summary>
         [JsonProperty("httpRealm")]
+        [XmlAttribute("httpRealm")]
         public string HttpRealm { get; set; }
 
         /// <summary>
         /// The login form's domain.
         /// </summary>
         [JsonProperty("formSubmitURL")]
+        [XmlAttribute("formSubmitURL")]
         public string FormSubmitUrl { get; set; }
 
         /// <summary>
         /// The name of HTML user name field or blank for HTTP authentication.
         /// </summary>
         [JsonProperty("usernameField")]
+        [XmlAttribute("userFieldName")]
         public string UserNameField { get; set; }
 
         /// <summary>
         /// The name of HTML password field or blank for HTTP authentication.
         /// </summary>
         [JsonProperty("passwordField")]
+        [XmlAttribute("passFieldName")]
         public string PasswordField { get; set; }
 
         /// <summary>
@@ -64,6 +71,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// </summary>
         [JsonProperty("encryptedUsername")]
         [JsonConverter(typeof(EncryptedValueConverter))]
+        [XmlAttribute("user")]
         public string Username { get; set; }
 
         /// <summary>
@@ -71,6 +79,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// </summary>
         [JsonProperty("encryptedPassword")]
         [JsonConverter(typeof(EncryptedValueConverter))]
+        [XmlAttribute("password")]
         public string Password { get; set; }
 
         /// <summary>
@@ -78,6 +87,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// </summary>
         [JsonProperty("timeCreated")]
         [JsonConverter(typeof(UnixTimeConverter))]
+        [XmlIgnore]
         public DateTime? TimeCreated { get; set; }
 
         /// <summary>
@@ -85,6 +95,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// </summary>
         [JsonProperty("timeLastUsed")]
         [JsonConverter(typeof(UnixTimeConverter))]
+        [XmlIgnore]
         public DateTime? TimeLastUsed { get; set; }
 
         /// <summary>
@@ -92,12 +103,14 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// </summary>
         [JsonProperty("timePasswordChanged")]
         [JsonConverter(typeof(UnixTimeConverter))]
+        [XmlIgnore]
         public DateTime? TimePasswordChanged { get; set; }
 
         /// <summary>
         /// Amount of times sign on was used.
         /// </summary>
         [JsonProperty("timesUsed")]
+        [XmlIgnore]
         public ulong TimesUsed { get; set; }
     }
 }

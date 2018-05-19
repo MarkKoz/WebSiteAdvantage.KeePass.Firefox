@@ -20,6 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 
 using Newtonsoft.Json;
 
@@ -32,14 +34,14 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
     /// <summary>
     /// Parses Firefox sign on files. Supports <c>logins.json</c> and <c>signons.sqlite</c>.
     /// </summary>
-    internal static class SignonParser
+    public static class SignonParser
     {
         /// <summary>
         /// Reads and parses sign ons from the <c>logins.json</c> file.
         /// </summary>
         /// <param name="path">The absolute path to the <c>logins.json</c> file.</param>
         /// <returns>The parsed sign ons.</returns>
-        public static IEnumerable<Signon> ParseJson(string path)
+        internal static IEnumerable<Signon> ParseJson(string path)
         {
             using (var reader = new StreamReader(path))
             using (var jsonReader = new JsonTextReader(reader) {SupportMultipleContent = true})
@@ -87,7 +89,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         /// </summary>
         /// <param name="path">The absolute path to the <c>signons.sqlite</c> file.</param>
         /// <returns>The parsed sign ons.</returns>
-        public static IEnumerable<Signon> ParseDatabase(string path)
+        internal static IEnumerable<Signon> ParseDatabase(string path)
         {
             var connectionBuilder = new SQLiteConnectionStringBuilder
             {
@@ -135,6 +137,34 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
                         TimesUsed = reader.GetUInt64("timesUsed")
                     };
                 }
+            }
+        }
+
+        /// <summary>
+        /// Reads and parses <see cref="Signon"/>s from an XML file exported by the Password Exporter extension.
+        /// </summary>
+        /// <param name="path">The absolute path to the XML file to parse.</param>
+        /// <exception cref="InvalidOperationException">Thrown when a deserialisation error occurs.</exception>
+        /// <exception cref="IOException">Thrown when the XML file fails to load.</exception>
+        /// <exception cref="UnauthorizedAccessException">Thrown when there is a lack of permissions to load the XML file.</exception>
+        /// <returns>The parsed <see cref="Signon"/>s.</returns>
+        public static IEnumerable<Signon> ParseXml(string path)
+        {
+            var settings = new XmlReaderSettings
+            {
+                CheckCharacters = false,
+                IgnoreComments = true,
+                IgnoreWhitespace = true,
+                ValidationType = ValidationType.None
+            };
+
+            var serialiser = new XmlSerializer(typeof(Signon));
+
+            using (StreamReader stream = File.OpenText(path))
+            using (XmlReader reader = XmlReader.Create(stream, settings))
+            {
+                while (reader.ReadToFollowing("entry"))
+                    yield return (Signon) serialiser.Deserialize(reader.ReadSubtree());
             }
         }
     }
