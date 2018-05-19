@@ -32,15 +32,16 @@ using WebSiteAdvantage.KeePass.Firefox.Signons.Converters;
 namespace WebSiteAdvantage.KeePass.Firefox.Signons
 {
     /// <summary>
-    /// Parses Firefox sign on files. Supports <c>logins.json</c> and <c>signons.sqlite</c>.
+    /// Parses Firefox <see cref="Signon"/> files. Supports <c>logins.json</c>,
+    /// <c>signons.sqlite</c>, and XML files exported by the Password Exporter extension.
     /// </summary>
     public static class SignonParser
     {
         /// <summary>
-        /// Reads and parses sign ons from the <c>logins.json</c> file.
+        /// Reads and parses <see cref="Signon"/>s from the <c>logins.json</c> file.
         /// </summary>
         /// <param name="path">The absolute path to the <c>logins.json</c> file.</param>
-        /// <returns>The parsed sign ons.</returns>
+        /// <returns>The parsed <see cref="Signon"/>s.</returns>
         internal static IEnumerable<Signon> ParseJson(string path)
         {
             using (var reader = new StreamReader(path))
@@ -85,10 +86,10 @@ namespace WebSiteAdvantage.KeePass.Firefox.Signons
         }
 
         /// <summary>
-        /// Reads and parses sign ons from the <c>signons.sqlite</c> database.
+        /// Reads and parses <see cref="Signon"/>s from the <c>signons.sqlite</c> database.
         /// </summary>
         /// <param name="path">The absolute path to the <c>signons.sqlite</c> file.</param>
-        /// <returns>The parsed sign ons.</returns>
+        /// <returns>The parsed <see cref="Signon"/>s.</returns>
         internal static IEnumerable<Signon> ParseDatabase(string path)
         {
             var connectionBuilder = new SQLiteConnectionStringBuilder
