@@ -29,23 +29,23 @@ namespace WebSiteAdvantage.KeePass.Firefox.Extensions
     {
         public static string GetString(this SQLiteDataReader reader, string column)
         {
-            int oridnal = reader.GetOrdinal(column);
+            int ordinal = reader.GetOrdinal(column);
 
-            return reader.IsDBNull(oridnal) ? string.Empty : reader.GetString(oridnal);
+            return reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal);
         }
 
         public static ulong GetUInt64(this SQLiteDataReader reader, string column)
         {
-            int oridnal = reader.GetOrdinal(column);
+            int ordinal = reader.GetOrdinal(column);
 
-            return reader.IsDBNull(oridnal) ? default(ulong) : (ulong)reader.GetInt64(oridnal);
+            return reader.IsDBNull(ordinal) ? default(ulong) : (ulong)reader.GetInt64(ordinal);
         }
 
         public static ulong? GetNullableUInt64(this SQLiteDataReader reader, string column)
         {
-            int oridnal = reader.GetOrdinal(column);
+            int ordinal = reader.GetOrdinal(column);
 
-            return reader.IsDBNull(oridnal) ? default(ulong?) : (ulong?)reader.GetInt64(oridnal);
+            return reader.IsDBNull(ordinal) ? default(ulong?) : (ulong?)reader.GetInt64(ordinal);
         }
     }
 }
