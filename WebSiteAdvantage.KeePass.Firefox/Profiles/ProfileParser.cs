@@ -52,13 +52,12 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
         /// Retrieves the first default profile if it exists. Otherwise,
         /// retrieves the first profile. Invalid profiles are excluded.
         /// </summary>
+        /// <param name="profiles">The profiles for which to search.</param>
         /// <returns>The primary profile or <c>null</c> if none could be found.</returns>
-        public static ProfileInfo GetPrimaryProfile()
+        public static ProfileInfo GetPrimaryProfile(IEnumerable<ProfileInfo> profiles)
         {
             try
             {
-                IEnumerable<ProfileInfo> profiles = GetProfiles(GetProfilePaths()).SkipExceptions();
-
                 // It's fine to enumerate again if there's no default because it's quite unlikely there won't be a default.
                 // This way, for the far more common case of a default existing, it can take advantage of lazy evaluation.
                 return profiles.FirstOrDefault(p => p.Default && !string.IsNullOrEmpty(p.Path)) ?? profiles.FirstOrDefault();
@@ -69,6 +68,21 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Retrieves the first default profile if it exists. Otherwise,
+        /// retrieves the first profile. Invalid profiles are excluded.
+        /// </summary>
+        /// <remarks>
+        /// Profiles are retrieved using <see cref="GetProfilePaths"/> and <see cref="GetProfiles"/>.
+        /// </remarks>
+        /// <returns>The primary profile or <c>null</c> if none could be found.</returns>
+        public static ProfileInfo GetPrimaryProfile()
+        {
+            IEnumerable<ProfileInfo> profiles =  GetProfiles(GetProfilePaths()).SkipExceptions();
+
+            return GetPrimaryProfile(profiles);
         }
 
         /// <summary>
