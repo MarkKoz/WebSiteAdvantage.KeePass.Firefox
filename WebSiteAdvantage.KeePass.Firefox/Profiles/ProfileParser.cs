@@ -33,7 +33,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
     /// <summary>
     /// Parses <c>profiles.ini</c> files.
     /// </summary>
-    internal static class ProfileParser
+    public static class ProfileParser
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
