@@ -105,7 +105,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             if (slot == IntPtr.Zero)
                 throw new NsprException("Failed to get internal key slot.");
 
-            if (PK11_CheckUserPassword(slot, password) != SecStatus.Success)
+            if (PK11_CheckUserPassword(slot, password ?? "") != SecStatus.Success)
             {
                 int error = PR_GetError();
                 string errorName = PR_ErrorToName(error);
