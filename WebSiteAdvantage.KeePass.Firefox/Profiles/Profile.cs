@@ -40,21 +40,6 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        #region Constructors
-
-        /// <summary>
-        /// Constructs a profile from the given <see cref="ProfileInfo"/>.
-        /// </summary>
-        /// <param name="profileInfo">The <see cref="ProfileInfo"/> from which to construct a profile.</param>
-        /// <param name="password">The profile's master password.</param>
-        /// <exception cref="ArgumentException">Thrown when the profile cannot be initialised or the password is invalid.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="profileInfo"/> is <c>null</c>.</exception>
-        /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        internal Profile(ProfileInfo profileInfo, string password = "") : this(profileInfo?.AbsolutePath, password)
-        {
-            Info = profileInfo;
-        }
-
         /// <summary>
         /// Constructs a profile for the profile at the given path.
         /// </summary>
@@ -70,17 +55,6 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
             Init();
             Login(password);
         }
-
-        /// <summary>
-        /// Constructs a profile for the default profile or the first profile found.
-        /// </summary>
-        /// <param name="password">The profile's master password.</param>
-        /// <exception cref="ArgumentException">Thrown when the password is invalid.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when no profile can be found.</exception>
-        /// <exception cref="NsprException">Thrown when NSS cannot be initialised or a key slot cannot be retrieved.</exception>
-        public Profile(string password = "") : this(ProfileParser.GetPrimaryProfile(), password) { }
-
-        #endregion
 
         /// <summary>
         /// Initialises NSS.
@@ -141,11 +115,6 @@ namespace WebSiteAdvantage.KeePass.Firefox.Profiles
         #region Profile Data
 
         private IntPtr slot;
-
-        /// <summary>
-        /// The profile's information. <c>null</c> if <see cref="Profile(string,string)"/> is used.
-        /// </summary>
-        public ProfileInfo Info { get; }
 
         /// <summary>
         /// The profile's absolute path.
