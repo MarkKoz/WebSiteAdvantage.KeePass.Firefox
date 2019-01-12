@@ -55,7 +55,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
         /// <summary>
         /// Contents of the line between an inner exception and the previous exception.
         /// </summary>
-        public string InnerSeperator { get; set; } = string.Empty;
+        public string InnerSeparator { get; set; } = string.Empty;
 
         /// <summary>
         /// The newline character to use.
@@ -83,7 +83,7 @@ namespace WebSiteAdvantage.KeePass.Firefox.Logging.LayoutRenderers
                 if (e != exception)
                 {
                     ++loggedInner;
-                    builder.Append(InnerSeperator);
+                    builder.Append(InnerSeparator);
                 }
 
                 string type = FullTypeName ? e.GetType().FullName : e.GetType().Name;
